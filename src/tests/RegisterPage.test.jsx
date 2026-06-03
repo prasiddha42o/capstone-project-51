@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { registerUser } from "../utils/auth";
+
 import {
   LeafIcon,
   MailIcon,
@@ -8,8 +10,6 @@ import {
   GoogleIcon,
   GithubIcon
 } from "../components/Icons";
-
-import { registerUser } from "../utils/auth";
 
 export default function RegisterPage({ onLogin, onGoLogin }) {
   const [showPw, setShowPw] = useState(false);
@@ -22,34 +22,27 @@ export default function RegisterPage({ onLogin, onGoLogin }) {
   const [error, setError] = useState("");
 
   const handleRegister = () => {
-    if (!name || !email || !password || !confirmPassword) {
-      setError("All fields are required");
-      return;
-    }
-
     if (password !== confirmPassword) {
       setError("Passwords do not match");
       return;
     }
 
-    const result = registerUser({
-      name,
-      email,
-      password
-    });
+    const result = registerUser({ name, email, password });
 
-    if (!result.success) {
-      setError(result.message);
+    if (result.error) {
+      setError(result.error);
       return;
     }
 
     setError("");
-    onLogin?.({ email, password });
+    onLogin?.(result.user);
   };
 
   return (
     <div className="auth-bg">
       <div className="auth-card">
+
+        {/* LOGO */}
         <div className="auth-logo">
           <LeafIcon size={22} />
           <span className="auth-logo-text">Waste Assistant</span>
@@ -57,13 +50,13 @@ export default function RegisterPage({ onLogin, onGoLogin }) {
 
         <h1 className="auth-title">Create Account</h1>
 
-        {error && <p style={{ color: "red", fontSize: "12px" }}>{error}</p>}
-
-        {/* NAME */}
+        {/* FULL NAME */}
         <div className="form-group">
           <label className="form-label">Full Name</label>
           <div className="input-wrap">
-            <span className="input-icon"><UserIcon /></span>
+            <span className="input-icon">
+              <UserIcon />
+            </span>
             <input
               className="form-input"
               type="text"
@@ -78,7 +71,9 @@ export default function RegisterPage({ onLogin, onGoLogin }) {
         <div className="form-group">
           <label className="form-label">Email Address</label>
           <div className="input-wrap">
-            <span className="input-icon"><MailIcon /></span>
+            <span className="input-icon">
+              <MailIcon />
+            </span>
             <input
               className="form-input"
               type="email"
@@ -93,7 +88,9 @@ export default function RegisterPage({ onLogin, onGoLogin }) {
         <div className="form-group">
           <label className="form-label">Password</label>
           <div className="input-wrap">
-            <span className="input-icon"><LockIcon /></span>
+            <span className="input-icon">
+              <LockIcon />
+            </span>
             <input
               className="form-input"
               type={showPw ? "text" : "password"}
@@ -115,7 +112,9 @@ export default function RegisterPage({ onLogin, onGoLogin }) {
         <div className="form-group">
           <label className="form-label">Confirm Password</label>
           <div className="input-wrap">
-            <span className="input-icon"><LockIcon /></span>
+            <span className="input-icon">
+              <LockIcon />
+            </span>
             <input
               className="form-input"
               type={showCpw ? "text" : "password"}
@@ -133,21 +132,28 @@ export default function RegisterPage({ onLogin, onGoLogin }) {
           </div>
         </div>
 
+        {/* ERROR */}
+        {error && <p style={{ color: "red", fontSize: "12px" }}>{error}</p>}
+
+        {/* TERMS */}
         <p className="terms-text">
           I agree to the <span className="link">Terms of Service</span> and{" "}
           <span className="link">Privacy Policy</span>
         </p>
 
+        {/* BUTTON */}
         <button className="btn-primary" onClick={handleRegister}>
           Create Account
         </button>
 
+        {/* DIVIDER */}
         <div className="divider">
           <div className="divider-line" />
           <span className="divider-text">Or sign up with</span>
           <div className="divider-line" />
         </div>
 
+        {/* SOCIAL */}
         <div className="social-btns">
           <button className="btn-social">
             <GoogleIcon /> Google
@@ -157,12 +163,14 @@ export default function RegisterPage({ onLogin, onGoLogin }) {
           </button>
         </div>
 
+        {/* LOGIN LINK */}
         <p className="auth-footer">
           Already have an account?{" "}
           <span className="link" onClick={onGoLogin}>
             Login here
           </span>
         </p>
+
       </div>
     </div>
   );
