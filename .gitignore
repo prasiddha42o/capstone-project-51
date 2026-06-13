@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # ==========================
 # Python
 # ==========================
@@ -25,9 +26,6 @@ env/
 *.pkl
 *.joblib
 
-# Ignore trained models folders
-model_and_data_pipeline/models/
-model_and_data_pipeline/models_v2/
 
 # ==========================
 # Datasets
@@ -73,3 +71,4 @@ dist/
 temp/
 tmp/
 .cache/
+=======
