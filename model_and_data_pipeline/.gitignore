@@ -1,8 +1,0 @@
-dataset/
-dataset.zip
-raw_datasets/
-models/
-*.h5
-*.pth
-__pycache__/
-.DS_Store
