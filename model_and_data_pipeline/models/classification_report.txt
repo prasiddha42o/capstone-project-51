@@ -1,0 +1,17 @@
+Test accuracy : 0.8892
+Top-2 accuracy: 0.9598
+
+               precision    recall  f1-score   support
+
+      e-waste     0.7875    0.9598    0.8652       224
+general_trash     0.9712    0.9011    0.9348      1233
+        glass     0.8412    0.9363    0.8862       628
+    hazardous     0.7760    0.9803    0.8663       152
+        metal     0.7512    0.9209    0.8274       354
+      organic     0.9114    0.8890    0.9001       694
+        paper     0.9287    0.8822    0.9049      1019
+      plastic     0.8834    0.7859    0.8318       752
+
+     accuracy                         0.8892      5056
+    macro avg     0.8563    0.9069    0.8771      5056
+ weighted avg     0.8958    0.8892    0.8900      5056
