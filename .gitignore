@@ -1,0 +1,75 @@
+# ==========================
+# Python
+# ==========================
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual Environments
+waste_env/
+venv/
+env/
+.venv/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# ==========================
+# Model Files
+# ==========================
+*.h5
+*.keras
+*.pth
+*.pt
+*.onnx
+*.pkl
+*.joblib
+
+# Ignore trained models folders
+model_and_data_pipeline/models/
+model_and_data_pipeline/models_v2/
+
+# ==========================
+# Datasets
+# ==========================
+*.zip
+
+# Raw and processed datasets
+model_and_data_pipeline/raw_datasets/
+model_and_data_pipeline/dataset/
+model_and_data_pipeline/dataset_v2/
+
+# ==========================
+# VS Code
+# ==========================
+.vscode/
+
+# ==========================
+# MacOS
+# ==========================
+.DS_Store
+
+# ==========================
+# Logs
+# ==========================
+*.log
+
+# ==========================
+# Environment Variables
+# ==========================
+.env
+.env.local
+
+# ==========================
+# Build Files
+# ==========================
+build/
+dist/
+*.egg-info/
+
+# ==========================
+# Temporary Files
+# ==========================
+temp/
+tmp/
+.cache/
