@@ -20,8 +20,6 @@ env/
 # ==========================
 *.h5
 *.keras
-*.pth
-*.pt
 *.onnx
 *.pkl
 *.joblib
