@@ -1,87 +1,137 @@
-import { useState, useRef } from "react";
-import { UploadIcon, ScanIcon, StarIcon, InfoIcon } from "../components/Icons";
+import { useState } from "react";
+
+const API_BASE = "http://localhost:3001/api";
 
 export default function IdentifyPage() {
-  const [dragOver, setDragOver] = useState(false);
+  const [file, setFile] = useState(null);
   const [preview, setPreview] = useState(null);
-  const [analyzing, setAnalyzing] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
-  const fileRef = useRef();
 
-  const handleFile = (file) => {
-    if (!file) return;
-    setPreview(URL.createObjectURL(file));
+  const handleFileChange = (e) => {
+    const f = e.target.files[0];
+    if (!f) return;
+
+    setFile(f);
+    setPreview(URL.createObjectURL(f));
     setResult(null);
   };
 
-  const mockAnalyze = () => {
-    setAnalyzing(true);
-    setTimeout(() => {
-      setAnalyzing(false);
-      setResult({
-        type: "PET Plastic Bottle",
+  const removeFile = () => {
+    setFile(null);
+    setPreview(null);
+    setResult(null);
+  };
+
+  const analyzeWaste = async () => {
+    setLoading(true);
+
+    setTimeout(async () => {
+      const fakeResult = {
+        name: "PET Plastic Bottle",
         confidence: 94,
-        disposal:
-          "Rinse thoroughly, remove cap and label, flatten if possible. Place in the blue recycling bin. Can be recycled into new bottles, fiber, or packaging materials.",
         points: 10,
+        instructions: "Dispose in recycling bin",
+        emoji: "🧴",
+        type: "plastic",
+        weight: "500g",
+      };
+
+      setResult(fakeResult);
+      setLoading(false);
+
+      const user = JSON.parse(localStorage.getItem("wa_user"));
+
+      await fetch(`${API_BASE}/dashboard/update`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId: user?.id,
+          result: fakeResult,
+        }),
       });
-    }, 1800);
+    }, 2000);
   };
 
   return (
     <div className="page">
       <div className="page-inner">
+
+        {/* HEADER */}
         <div className="identify-header">
           <h1>AI Waste Identification Hub</h1>
-          <p>Upload an image to identify waste type with AI-powered analysis</p>
-          <div className="ai-badge">✦ AI-powered</div>
+          <p>Upload an image to identify waste type instantly</p>
+
+          <div className="ai-badge">
+            🤖 AI-Powered
+          </div>
         </div>
 
+        {/* GUIDELINES */}
         <div className="guidelines-card">
           <div className="guidelines-card-header">
-            <div className="guidelines-title"><InfoIcon /> Image Capture Guidelines</div>
+            <div className="guidelines-title">
+              📌 Image Capture Guidelines
+            </div>
           </div>
+
           <ul className="guidelines-list">
-            <li><strong>Plain background:</strong> Place item on a solid, contrasting surface</li>
-            <li><strong>Good lighting:</strong> Ensure bright, even lighting without shadows</li>
-            <li><strong>Avoid reflections:</strong> Minimize glare on glass or shiny surfaces</li>
-            <li><strong>Flatten objects:</strong> Unwrap and flatten items like wrappers</li>
-            <li><strong>One item only:</strong> Scan one waste item at a time</li>
-            <li><strong>Clear focus:</strong> Hold camera steady and ensure object is in focus</li>
+            <li>Supported formats: JPG, PNG, JPEG</li>
+            <li>Recommended: 720p or higher resolution</li>
+            <li>Good lighting improves accuracy</li>
+            <li>Use plain, uncluttered background</li>
           </ul>
         </div>
 
-        {!preview ? (
-          <div
-            className={`dropzone${dragOver ? " drag-over" : ""}`}
-            onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
-            onDragLeave={() => setDragOver(false)}
-            onDrop={(e) => { e.preventDefault(); setDragOver(false); handleFile(e.dataTransfer.files[0]); }}
-            onClick={() => fileRef.current.click()}
-          >
-            <div className="dropzone-icon"><UploadIcon /></div>
+        {/* DROPZONE */}
+        {!file && (
+          <div className="dropzone">
+            <div className="dropzone-icon">📤</div>
+
             <h3>Drag and Drop Waste Image Here</h3>
-            <p className="dropzone-or">or</p>
-            <button className="btn-select" onClick={(e) => { e.stopPropagation(); fileRef.current.click(); }}>
-              Select File
-            </button>
-            <p className="dropzone-hint">Supports JPG, PNG, WEBP (Max size: 10MB)</p>
+            <div className="dropzone-or">OR</div>
+
+            {/* hidden input */}
             <input
-              ref={fileRef} type="file" accept="image/*"
+              type="file"
+              accept="image/*"
+              id="fileUpload"
+              onChange={handleFileChange}
               style={{ display: "none" }}
-              onChange={(e) => handleFile(e.target.files[0])}
             />
+
+            {/* FIXED BUTTON (GREEN + CLICKABLE) */}
+            <button
+              className="btn-select"
+              onClick={() => document.getElementById("fileUpload").click()}
+            >
+              Browse File
+            </button>
+
+            <div className="dropzone-hint">
+              Only image files are supported
+            </div>
           </div>
-        ) : (
-          <div style={{ textAlign: "center", border: "1.5px solid var(--gray-200)", borderRadius: 14, padding: "24px 20px" }}>
-            <img src={preview} className="preview-img" alt="preview" />
-            <div style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap" }}>
-              <button className="btn-analyze" onClick={mockAnalyze} disabled={analyzing}>
-                {analyzing ? "⏳ Analyzing…" : <><ScanIcon /> Analyze Waste</>}
-              </button>
+        )}
+
+        {/* PREVIEW */}
+        {preview && (
+          <div className="dash-card">
+            <img src={preview} alt="preview" className="preview-img" />
+
+            <div style={{ display: "flex", gap: "10px" }}>
               <button
-                style={{ padding: "11px 20px", border: "1.5px solid var(--gray-300)", borderRadius: 9, background: "var(--white)", cursor: "pointer", fontSize: 14 }}
-                onClick={() => { setPreview(null); setResult(null); }}
+                className="btn-analyze"
+                onClick={analyzeWaste}
+                disabled={loading}
+              >
+                {loading ? "Analyzing..." : "Analyze Waste"}
+              </button>
+
+              <button
+                className="btn-select"
+                style={{ background: "#ef4444" }}
+                onClick={removeFile}
               >
                 Remove
               </button>
@@ -89,17 +139,29 @@ export default function IdentifyPage() {
           </div>
         )}
 
+        {/* RESULT */}
         {result && (
           <div className="result-card">
-            <div className="result-title">✦ Identification Result</div>
-            <div className="result-type">{result.type}</div>
-            <div className="result-conf">Confidence: {result.confidence}%</div>
-            <div className="result-disposal">
-              <strong>Disposal Instructions:</strong><br />{result.disposal}
+            <div className="result-title">Analysis Result</div>
+
+            <div className="result-type">
+              {result.emoji} {result.name}
             </div>
-            <div className="result-points"><StarIcon /> +{result.points} points earned!</div>
+
+            <div className="result-conf">
+              Confidence: <b>{result.confidence}%</b>
+            </div>
+
+            <div className="result-disposal">
+              <b>Disposal Instructions:</b> {result.instructions}
+            </div>
+
+            <div className="result-points">
+              +{result.points} points earned
+            </div>
           </div>
         )}
+
       </div>
     </div>
   );

@@ -1,27 +1,21 @@
 import { useState } from "react";
 import {
-  LeafIcon,
-  MailIcon,
-  LockIcon,
-  UserIcon,
-  EyeIcon,
-  GoogleIcon,
-  GithubIcon
+  LeafIcon, MailIcon, LockIcon, UserIcon, EyeIcon, GoogleIcon, GithubIcon,
 } from "../components/Icons";
-
 import { registerUser } from "../utils/auth";
 
 export default function RegisterPage({ onLogin, onGoLogin }) {
   const [showPw, setShowPw] = useState(false);
   const [showCpw, setShowCpw] = useState(false);
-
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleRegister = () => {
+  const handleRegister = async () => {
+    // Validation
     if (!name || !email || !password || !confirmPassword) {
       setError("All fields are required");
       return;
@@ -32,19 +26,25 @@ export default function RegisterPage({ onLogin, onGoLogin }) {
       return;
     }
 
-    const result = registerUser({
-      name,
-      email,
-      password
-    });
+    if (password.length < 4) {
+      setError("Password must be at least 4 characters");
+      return;
+    }
+
+    setLoading(true);
+    setError("");
+
+    // ✅ FIXED LINE (THIS WAS THE BUG)
+    const result = await registerUser(name, email, password);
+
+    setLoading(false);
 
     if (!result.success) {
       setError(result.message);
       return;
     }
 
-    setError("");
-    onLogin?.({ email, password });
+    onLogin?.(result.user);
   };
 
   return (
@@ -56,8 +56,9 @@ export default function RegisterPage({ onLogin, onGoLogin }) {
         </div>
 
         <h1 className="auth-title">Create Account</h1>
+        <p className="auth-sub">Start your sustainability journey today</p>
 
-        {error && <p style={{ color: "red", fontSize: "12px" }}>{error}</p>}
+        {error && <p style={{ color: "red", fontSize: 12, marginTop: 4 }}>{error}</p>}
 
         {/* NAME */}
         <div className="form-group">
@@ -101,11 +102,7 @@ export default function RegisterPage({ onLogin, onGoLogin }) {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
-            <button
-              className="eye-btn"
-              type="button"
-              onClick={() => setShowPw((v) => !v)}
-            >
+            <button className="eye-btn" type="button" onClick={() => setShowPw((v) => !v)}>
               <EyeIcon off={showPw} />
             </button>
           </div>
@@ -123,11 +120,7 @@ export default function RegisterPage({ onLogin, onGoLogin }) {
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
             />
-            <button
-              className="eye-btn"
-              type="button"
-              onClick={() => setShowCpw((v) => !v)}
-            >
+            <button className="eye-btn" type="button" onClick={() => setShowCpw((v) => !v)}>
               <EyeIcon off={showCpw} />
             </button>
           </div>
@@ -138,8 +131,8 @@ export default function RegisterPage({ onLogin, onGoLogin }) {
           <span className="link">Privacy Policy</span>
         </p>
 
-        <button className="btn-primary" onClick={handleRegister}>
-          Create Account
+        <button className="btn-primary" onClick={handleRegister} disabled={loading}>
+          {loading ? "Creating account…" : "Create Account"}
         </button>
 
         <div className="divider">
@@ -149,19 +142,13 @@ export default function RegisterPage({ onLogin, onGoLogin }) {
         </div>
 
         <div className="social-btns">
-          <button className="btn-social">
-            <GoogleIcon /> Google
-          </button>
-          <button className="btn-social">
-            <GithubIcon /> GitHub
-          </button>
+          <button className="btn-social"><GoogleIcon /> Google</button>
+          <button className="btn-social"><GithubIcon /> GitHub</button>
         </div>
 
         <p className="auth-footer">
           Already have an account?{" "}
-          <span className="link" onClick={onGoLogin}>
-            Login here
-          </span>
+          <span className="link" onClick={onGoLogin}>Login here</span>
         </p>
       </div>
     </div>

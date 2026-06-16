@@ -1,11 +1,14 @@
-import { users } from "../data/users";
-
 export function validateEmail(email) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
-export function validateLogin(email, password) {
-  return users.find(
-    (u) => u.email  === email && u.password === password
-  );
+export async function validateLogin(email, password) {
+  const res = await fetch("http://localhost:5000/api/auth/login", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, password }),
+  });
+
+  const data = await res.json();
+  return data.success;
 }

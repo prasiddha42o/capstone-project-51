@@ -1,19 +1,89 @@
-import { users } from "../data/users";
+const API_BASE = "http://localhost:3001/api";
 
-export function loginUser(email, password) {
-  return users.find(
-    (u) => u.email === email && u.password === password
-  );
+/**
+ * LOGIN USER
+ */
+export async function loginUser(email, password) {
+  try {
+    const res = await fetch(`${API_BASE}/auth/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    });
+
+    const data = await res.json();
+
+    // backend error (wrong credentials, etc.)
+    if (!res.ok) {
+      return {
+        success: false,
+        message: data.error || "Login failed",
+      };
+    }
+
+    // save user
+    localStorage.setItem("wa_user", JSON.stringify(data.user));
+
+    return {
+      success: true,
+      user: data.user,
+    };
+  } catch (err) {
+    return {
+      success: false,
+      message: "Server not reachable",
+    };
+  }
 }
 
-export function registerUser(email, password, name) {
-  const exists = users.some((u) => u.email === email);
+/**
+ * REGISTER USER
+ */
+export async function registerUser(name, email, password) {
+  try {
+    const res = await fetch(`${API_BASE}/auth/register`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name, email, password }),
+    });
 
-  if (exists) {
-    return { success: false, message: "User already exists" };
+    const data = await res.json();
+
+    if (!res.ok) {
+      return {
+        success: false,
+        message: data.error || "Registration failed",
+      };
+    }
+
+    localStorage.setItem("wa_user", JSON.stringify(data.user));
+
+    return {
+      success: true,
+      user: data.user,
+    };
+  } catch (err) {
+    return {
+      success: false,
+      message: "Server not reachable",
+    };
   }
+}
 
-  users.push({ email, password, name });
+/**
+ * GET CURRENT USER
+ */
+export function getCurrentUser() {
+  try {
+    return JSON.parse(localStorage.getItem("wa_user"));
+  } catch {
+    return null;
+  }
+}
 
-  return { success: true };
+/**
+ * LOGOUT USER
+ */
+export function logoutUser() {
+  localStorage.removeItem("wa_user");
 }
