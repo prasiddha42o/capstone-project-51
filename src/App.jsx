@@ -1,4 +1,3 @@
-// src/App.jsx
 import { useState } from "react";
 import Navbar from "./components/Navbar";
 import LoginPage from "./pages/LoginPage";
@@ -11,10 +10,10 @@ import AboutPage from "./pages/AboutPage";
 import { getCurrentUser, logoutUser } from "./utils/auth";
 
 export default function App() {
-  // Restore session from localStorage on page refresh
-  const [user, setUser] = useState(() => getCurrentUser());
-  const [screen, setScreen] = useState(() => getCurrentUser() ? "app" : "login");
+  const [user, setUser]             = useState(() => getCurrentUser());
+  const [screen, setScreen]         = useState(() => getCurrentUser() ? "app" : "login");
   const [activePage, setActivePage] = useState("Identify");
+  const [refreshKey, setRefreshKey] = useState(0);
 
   const handleLogin = (userData) => {
     setUser(userData);
@@ -27,15 +26,19 @@ export default function App() {
     setScreen("login");
   };
 
-  const renderPage = () => {
-    if (activePage === "Identify")     return <IdentifyPage />;
-    if (activePage === "My Dashboard") return <DashboardPage user={user} />;
-    if (activePage === "Local Info")   return <LocalInfoPage />;
-    if (activePage === "About")        return <AboutPage />;
-    return <HomePage setPage={setActivePage} />;
+  const handlePageChange = (page) => {
+    setActivePage(page);
+    setRefreshKey((k) => k + 1);
   };
 
-  // 🔐 AUTH FLOW
+  const renderPage = () => {
+    if (activePage === "Identify")     return <IdentifyPage />;
+    if (activePage === "My Dashboard") return <DashboardPage user={user} refreshKey={refreshKey} />;
+    if (activePage === "Local Info")   return <LocalInfoPage />;
+    if (activePage === "About")        return <AboutPage />;
+    return <HomePage setPage={handlePageChange} />;
+  };
+
   if (screen === "login") {
     return (
       <LoginPage
@@ -54,12 +57,11 @@ export default function App() {
     );
   }
 
-  // 🧭 MAIN APP
   return (
     <>
       <Navbar
         activePage={activePage}
-        setPage={setActivePage}
+        setPage={handlePageChange}
         onLogout={handleLogout}
       />
       {renderPage()}

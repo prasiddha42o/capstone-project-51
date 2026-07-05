@@ -1,12 +1,15 @@
 import { useState } from "react";
+import { getCategoryInfo } from "../data/wasteCategories";
 
 const API_BASE = "http://localhost:3001/api";
+const ML_API_BASE = "http://localhost:8000";
 
 export default function IdentifyPage() {
   const [file, setFile] = useState(null);
   const [preview, setPreview] = useState(null);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
+  const [error, setError] = useState(null);
 
   const handleFileChange = (e) => {
     const f = e.target.files[0];
@@ -15,31 +18,56 @@ export default function IdentifyPage() {
     setFile(f);
     setPreview(URL.createObjectURL(f));
     setResult(null);
+    setError(null);
   };
 
   const removeFile = () => {
     setFile(null);
     setPreview(null);
     setResult(null);
+    setError(null);
   };
 
   const analyzeWaste = async () => {
+    if (!file) return;
     setLoading(true);
+    setError(null);
 
-    setTimeout(async () => {
-      const fakeResult = {
-        name: "PET Plastic Bottle",
-        confidence: 94,
-        points: 10,
-        instructions: "Dispose in recycling bin",
-        emoji: "🧴",
-        type: "plastic",
-        weight: "500g",
+    try {
+      // 1. Send image to the FastAPI model service
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const mlResponse = await fetch(`${ML_API_BASE}/predict`, {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!mlResponse.ok) {
+        const errData = await mlResponse.json().catch(() => ({}));
+        throw new Error(errData.detail || "Model service failed to analyze the image.");
+      }
+
+      const prediction = await mlResponse.json();
+      // prediction = { predicted_class, confidence, top3 }
+
+      const categoryInfo = getCategoryInfo(prediction.predicted_class);
+
+      const finalResult = {
+        name: categoryInfo.name,
+        confidence: Math.round(prediction.confidence * 100),
+        points: categoryInfo.points,
+        instructions: categoryInfo.instructions,
+        emoji: categoryInfo.emoji,
+        type: categoryInfo.type,
+        weight: "N/A",
+        top3: prediction.top3,
       };
 
-      setResult(fakeResult);
+      setResult(finalResult);
       setLoading(false);
 
+      // 2. Log the result + award points via the Node/Express backend
       const user = JSON.parse(localStorage.getItem("wa_user"));
 
       await fetch(`${API_BASE}/dashboard/update`, {
@@ -47,10 +75,14 @@ export default function IdentifyPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           userId: user?.id,
-          result: fakeResult,
+          result: finalResult,
         }),
       });
-    }, 2000);
+    } catch (err) {
+      console.error(err);
+      setError(err.message || "Something went wrong analyzing the image.");
+      setLoading(false);
+    }
   };
 
   return (
@@ -91,7 +123,6 @@ export default function IdentifyPage() {
             <h3>Drag and Drop Waste Image Here</h3>
             <div className="dropzone-or">OR</div>
 
-            {/* hidden input */}
             <input
               type="file"
               accept="image/*"
@@ -100,7 +131,6 @@ export default function IdentifyPage() {
               style={{ display: "none" }}
             />
 
-            {/* FIXED BUTTON (GREEN + CLICKABLE) */}
             <button
               className="btn-select"
               onClick={() => document.getElementById("fileUpload").click()}
@@ -132,10 +162,24 @@ export default function IdentifyPage() {
                 className="btn-select"
                 style={{ background: "#ef4444" }}
                 onClick={removeFile}
+                disabled={loading}
               >
                 Remove
               </button>
             </div>
+          </div>
+        )}
+
+        {/* ERROR */}
+        {error && (
+          <div className="result-card" style={{ borderColor: "#ef4444" }}>
+            <div className="result-title" style={{ color: "#ef4444" }}>
+              Analysis Failed
+            </div>
+            <p>{error}</p>
+            <p style={{ fontSize: "0.85rem", opacity: 0.7 }}>
+              Make sure the model service is running at {ML_API_BASE}.
+            </p>
           </div>
         )}
 

@@ -4,7 +4,9 @@ export default function HomePage({ setPage }) {
   return (
     <div className="page">
       <section className="hero">
-        <h1 className="hero-title">AI Waste Assistant for Nepal</h1>
+        <h1 className="text-red-500 text-5xl font-bold">
+    Waste Management
+</h1>
         <p className="hero-sub">
           Join the movement to tackle Nepal's waste crisis with intelligent waste
           identification and sustainable disposal solutions.
