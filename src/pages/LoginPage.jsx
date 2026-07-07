@@ -32,7 +32,7 @@ export default function LoginPage({ onLogin, onGoRegister }) {
 
 
     setError("");
-    const result = await loginUser(email, password);
+    const result = await loginUser(trimmedEmail, password);
     setLoading(false);
 
     if (!result.success) {
@@ -56,9 +56,14 @@ export default function LoginPage({ onLogin, onGoRegister }) {
           <div className="input-wrap">
             <span className="input-icon"><MailIcon /></span>
             <input
-              className="form-input" type="email" placeholder="you@example.com"
-              value={email} onChange={(e) => setEmail(e.target.value)}
-            />
+  className="form-input"
+  type="email"
+  placeholder="you@example.com"
+  aria-label="Email address"
+  autoComplete="email"
+  value={email}
+  onChange={(e) => setEmail(e.target.value)}
+/>
           </div>
         </div>
 
