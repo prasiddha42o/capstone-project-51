@@ -139,9 +139,9 @@ marginBottom: "12px",
       </div>
 
       <ul className="rules-list">
-        {data.rules.map((rule, i) => (
-          <li key={i}>{rule}</li>
-        ))}
+       {data.rules.map((rule) => (
+  <li key={rule}>{rule}</li>
+))}
       </ul>
 
       <p className="rules-note">
