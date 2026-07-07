@@ -51,9 +51,10 @@ marginBottom: "12px",
 
     <div className="select-wrap">
       <select
-        value={district}
-        onChange={(e) => setDistrict(e.target.value)}
-      >
+  value={district}
+  aria-label="Select district"
+  onChange={(e) => setDistrict(e.target.value)}
+>
         {DISTRICTS.map((d) => (
           <option key={d}>{d}</option>
         ))}
