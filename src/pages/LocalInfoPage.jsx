@@ -103,8 +103,8 @@ marginBottom: "12px",
     </div>
 
     <div className="collection-grid">
-      {data.centers.map((c, i) => (
-        <div key={i} className="collection-card">
+      {data.centers.map((c) => (
+  <div key={c.name} className="collection-card">
           <div className="collection-card-header">
             <div className="collection-card-name">{c.name}</div>
 
