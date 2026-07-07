@@ -12,9 +12,10 @@ BuildingIcon,
 import { DISTRICTS, COLLECTION_DATA } from "../data/localData";
 
 export default function LocalInfoPage() {
-const [district, setDistrict] = useState("Kathmandu");
-const data = COLLECTION_DATA[district] || COLLECTION_DATA["Kathmandu"];
+const DEFAULT_DISTRICT = "Kathmandu";
 
+const [district, setDistrict] = useState(DEFAULT_DISTRICT);
+const data = COLLECTION_DATA[district] || COLLECTION_DATA[DEFAULT_DISTRICT];
 return (
 <div className="page">
 <div className="page-inner">
