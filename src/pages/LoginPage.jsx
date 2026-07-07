@@ -13,16 +13,24 @@ export default function LoginPage({ onLogin, onGoRegister }) {
   const [error, setError]       = useState("");
   const [loading, setLoading]   = useState(false);
 
-  const handleLogin = async (e) => {
-    e?.preventDefault();
-    if (!email.trim() || !password.trim()) {
-      setError("Please enter email and password"); return;
-    }
-    if (!validateEmail(email)) {
-      setError("Invalid email format"); return;
-    }
+ const handleLogin = async (e) => {
+  e?.preventDefault();
 
-    setLoading(true);
+  const trimmedEmail = email.trim();
+
+  if (!trimmedEmail || !password.trim()) {
+    setError("Please enter email and password");
+    return;
+  }
+
+  if (!validateEmail(trimmedEmail)) {
+    setError("Invalid email format");
+    return;
+  }
+
+  setLoading(true);
+
+
     setError("");
     const result = await loginUser(email, password);
     setLoading(false);
