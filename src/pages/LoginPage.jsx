@@ -62,7 +62,10 @@ export default function LoginPage({ onLogin, onGoRegister }) {
   aria-label="Email address"
   autoComplete="email"
   value={email}
-  onChange={(e) => setEmail(e.target.value)}
+  onChange={(e) => {
+  setEmail(e.target.value);
+  if (error) setError("");
+}}
 />
           </div>
         </div>
