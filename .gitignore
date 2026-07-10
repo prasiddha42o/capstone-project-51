@@ -24,3 +24,7 @@ dist-ssr
 *.sw?
 .env
 .env.local
+
+venv/
+__pycache__/
+app.py
