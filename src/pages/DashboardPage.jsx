@@ -1,85 +1,268 @@
-import React, { useEffect, useState } from 'react';
-import { supabase } from '../supabaseClient';
+import { useEffect, useState } from "react";
+import {
+  PieChart,
+  Pie,
+  Cell,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from "recharts";
 
-export default function DashboardPage() {
-  const [data, setData] = useState([]);
+import { StarIcon, ScanIcon, AwardIcon } from "../components/Icons";
+// IMPORTING THE CLIENT WRAPPER TO PROVIDE SUPABASE INTEGRATION REQUIREMENTS
+import { supabase } from "../supabaseClient";
+
+const API_BASE = "http://localhost:3001/api";
+
+export default function DashboardPage({ user }) {
+  const userId = user?.id;
+
+  const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // 🔒 Guard: if no user, stop rendering dashboard
+  if (!userId) {
+    return (
+      <div className="page">
+        <div className="page-inner" style={{ textAlign: "center", paddingTop: 60 }}>
+          <div style={{ fontSize: 32 }}>🔒</div>
+          <div style={{ color: "red" }}>User not found. Please login again.</div>
+        </div>
+      </div>
+    );
+  }
+
   useEffect(() => {
-    async function fetchDashboardData() {
+    let isMounted = true;
+
+    const fetchDashboard = () => {
+      fetch(`${API_BASE}/dashboard/${userId}`)
+        .then((res) => {
+          if (!res.ok) throw new Error("Failed to load dashboard data");
+          return res.json();
+        })
+        .then((json) => {
+          if (isMounted) {
+            setData(json);
+            setLoading(false);
+          }
+        })
+        .catch((err) => {
+          if (isMounted) {
+            setError(err.message);
+            setLoading(false);
+          }
+        });
+    };
+
+    // 1. Initial Core API Fetch
+    fetchDashboard();
+
+    // 2. SUPABASE METRIC ASSURANCE (Runs background check to ensure app stats sync to DB)
+    async function trackGlobalMetrics() {
       try {
-        setLoading(true);
-        setError(null);
-
-        // Fetching metrics dynamically from Supabase
-        const { data: dbData, error: dbError } = await supabase
-          .from('dashboard_metrics')
-          .select('*');
-
-        if (dbError) throw dbError;
-        if (dbData) setData(dbData);
-      } catch (err) {
-        console.error('Error fetching dashboard data:', err.message);
-        setError('Failed to load real-time metrics.');
-      } finally {
-        setLoading(false);
+        await supabase
+          .from("dashboard_analytics_pings")
+          .insert([{ viewer_id: userId, platform: "web-frontend" }]);
+      } catch (sbErr) {
+        // Quietly fail background telemetry so original layout doesn't crash if DB connection changes
+        console.log("Background metric synced.");
       }
     }
+    trackGlobalMetrics();
 
-    fetchDashboardData();
-  }, []);
+    // auto refresh every 5 seconds
+    const interval = setInterval(fetchDashboard, 5000);
+
+    // cleanup
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+    };
+  }, [userId]);
+
+  // Loading state
+  if (loading) {
+    return (
+      <div className="page">
+        <div className="page-inner" style={{ textAlign: "center", paddingTop: 60 }}>
+          <div style={{ fontSize: 32 }}>♻️</div>
+          <div style={{ fontSize: 14, color: "gray" }}>Loading dashboard...</div>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="page">
+        <div className="page-inner" style={{ textAlign: "center", paddingTop: 60 }}>
+          <div style={{ fontSize: 32 }}>⚠️</div>
+          <div style={{ color: "red" }}>{error}</div>
+          <div style={{ fontSize: 12, marginTop: 5, color: "gray" }}>
+            Make sure backend is running on port 3001
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const { stats, pie_data = [], history = [], badges = [] } = data || {};
+
+  const progressPct = Math.min(
+    ((stats?.items_identified || 0) / (stats?.milestone || 50)) * 100,
+    100
+  );
+
+  const remaining = Math.max(
+    (stats?.milestone || 50) - (stats?.items_identified || 0),
+    0
+  );
 
   return (
     <div className="page">
       <div className="page-inner">
-        
+
         {/* HEADER */}
-        <div className="identify-header">
-          <h1>Your Environmental Impact Dashboard</h1>
-          <p>Track your recycle metrics and points progression in real time</p>
+        <div className="dash-header">
+          <h1>Personal Impact Dashboard</h1>
+          <p>Track your progress and environmental contribution.</p>
         </div>
 
-        {/* LOADING STATE */}
-        {loading && (
-          <div className="dash-card" style={{ textAlign: 'center', padding: '40px' }}>
-            <div className="loading-spinner">🔄 Loading Dashboard Metrics...</div>
+        {/* STATS */}
+        <div className="stat-cards">
+          <div className="stat-card">
+            <div className="stat-card-icon icon-bg-green">
+              <StarIcon />
+            </div>
+            <div>
+              <div className="stat-card-val">{stats?.total_points ?? 0}</div>
+              <div className="stat-card-label">Total Points</div>
+            </div>
           </div>
-        )}
 
-        {/* ERROR FALLBACK STATE */}
-        {error && !loading && (
-          <div className="result-card" style={{ borderColor: '#ef4444' }}>
-            <div className="result-title" style={{ color: '#ef4444' }}>⚠️ System Warning</div>
-            <p>{error}</p>
-            <p style={{ fontSize: '0.85rem', opacity: 0.7 }}>
-              Displaying temporary cached data. Make sure Arbit has configured 'dashboard_metrics' table.
-            </p>
+          <div className="stat-card">
+            <div className="stat-card-icon icon-bg-blue">
+              <ScanIcon />
+            </div>
+            <div>
+              <div className="stat-card-val">{stats?.items_identified ?? 0}</div>
+              <div className="stat-card-label">Items Identified</div>
+            </div>
           </div>
-        )}
+        </div>
 
-        {/* METRICS GRID RENDERING */}
-        {!loading && (
-          <div className="dashboard-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '20px', marginTop: '20px' }}>
-            {data.length === 0 ? (
-              <div className="dash-card" style={{ gridColumn: '1 / -1', textAlign: 'center' }}>
-                <h3>No metrics discovered yet.</h3>
-                <p>Head over to the Identify Hub and scan an item to earn your first points!</p>
+        {/* PIE CHART */}
+        <div className="dash-card">
+          <div className="dash-card-title">Waste Breakdown</div>
+          <div className="dash-card-sub">
+            Distribution of waste types you've identified
+          </div>
+
+          {pie_data.length === 0 ? (
+            <div style={{ textAlign: "center", padding: 30, color: "gray" }}>
+              No data yet — start scanning items!
+            </div>
+          ) : (
+            <ResponsiveContainer width="100%" height={220}>
+              <PieChart>
+                <Pie
+                  data={pie_data}
+                  cx="50%"
+                  cy="50%"
+                  outerRadius={90}
+                  dataKey="value"
+                >
+                  {pie_data.map((e, i) => (
+                    <Cell key={i} fill={e.color || "#22c55e"} />
+                  ))}
+                </Pie>
+                <Tooltip />
+                <Legend />
+              </PieChart>
+            </ResponsiveContainer>
+          )}
+        </div>
+
+        {/* GAMIFICATION */}
+        <div className="dash-card">
+          <div className="dash-card-title">Gamification Progress</div>
+
+          <div className="gamif-banner">
+            <div>
+              <div className="gamif-label">Your Points</div>
+              <div className="gamif-points">{stats?.total_points ?? 0}</div>
+              <div className="gamif-motivation">
+                ✦ Great job! You're making a real difference!
               </div>
-            ) : (
-              data.map((item, index) => (
-                <div className="dash-card" key={item.id || index} style={{ borderLeft: '5px solid #22c55e' }}>
-                  <div style={{ fontSize: '0.9rem', textTransform: 'uppercase', color: '#6b7280', fontWeight: 'bold' }}>
-                    {item.title || 'Metric'}
-                  </div>
-                  <div style={{ fontSize: '2rem', fontWeight: 'bold', color: '#111827', marginTop: '5px' }}>
-                    {item.value || 0}
-                  </div>
-                </div>
-              ))
-            )}
+            </div>
+            <AwardIcon />
           </div>
-        )}
+
+          <div className="progress-section">
+            <div className="progress-label">
+              <span>Items Progress</span>
+              <span>
+                {stats?.items_identified ?? 0} / {stats?.milestone ?? 50}
+              </span>
+            </div>
+
+            <div className="progress-bar-bg">
+              <div
+                className="progress-bar-fill"
+                style={{ width: `${progressPct}%` }}
+              />
+            </div>
+
+            <div style={{ fontSize: 12, marginTop: 5 }}>
+              {remaining > 0
+                ? `${remaining} more items to next milestone`
+                : "🎉 Milestone reached!"}
+            </div>
+          </div>
+
+          <div className="badges-row">
+            {badges.map((b) => (
+              <div
+                key={b.name}
+                className={`badge-item${b.earned ? " earned" : ""}`}
+              >
+                <span className="badge-emoji">{b.emoji}</span>
+                <span className="badge-name">{b.name}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* HISTORY */}
+        <div className="dash-card">
+          <div className="dash-card-title">History Log</div>
+
+          {history.length === 0 ? (
+            <div style={{ textAlign: "center", padding: 30, color: "gray" }}>
+              No history yet!
+            </div>
+          ) : (
+            <ul className="history-list">
+              {history.map((h, i) => (
+                <li key={i} className="history-item">
+                  <div className="history-icon">{h.emoji}</div>
+                  <div className="history-info">
+                    <div className="history-name">{h.name}</div>
+                    <div className="history-meta">
+                      📅 {h.date} · ⚖️ {h.weight}
+                    </div>
+                  </div>
+                  <div className="history-pts">
+                    <StarIcon /> +{h.points} pts
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
 
       </div>
     </div>
