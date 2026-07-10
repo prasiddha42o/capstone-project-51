@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { getCategoryInfo } from "../data/wasteCategories";
+// IMPORTING THE CENTRALIZED CLIENT FOR ANALYTICS LOGGING
+import { supabase } from "../supabaseClient";
 
 const API_BASE = "http://localhost:3001/api";
 const ML_API_BASE = "http://localhost:8000";
@@ -78,6 +80,24 @@ export default function IdentifyPage() {
           result: finalResult,
         }),
       });
+
+      // 3. TELEMETRY: Async log to Supabase for app-wide metrics tracking
+      // (This updates analytics without disrupting Arbit's standard server route)
+      try {
+        await supabase
+          .from("identified_items")
+          .insert([
+            {
+              item_name: finalResult.name,
+              category: finalResult.type,
+              confidence_score: finalResult.confidence
+            }
+          ]);
+      } catch (supabaseErr) {
+        // Silently catch telemetry drops so core app execution doesn't halt
+        console.warn("Telemetry log skipped:", supabaseErr.message);
+      }
+
     } catch (err) {
       console.error(err);
       setError(err.message || "Something went wrong analyzing the image.");
