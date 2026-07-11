@@ -133,8 +133,48 @@ body {
 }
 .nav-link:hover { background:var(--gray-100); color:var(--gray-900); }
 .nav-link.active { color:var(--green-dark); font-weight:700; background:var(--green-light); }
-.btn-logout { padding:11px 22px; background:var(--red); color:#fff; border:none; border-radius:var(--radius-full); font-size:15.5px; font-weight:600; font-family:var(--font); cursor:pointer; display:flex; align-items:center; gap:6px; transition:var(--transition); }
-.btn-logout:hover { background:#dc2626; transform:translateY(-1px); box-shadow:0 6px 16px rgba(239,68,68,.25); }
+
+
+
+.btn-logout {
+
+padding: 12px 20px;
+
+background: transparent;
+
+color: var(--gray-600);
+
+border: none;
+
+border-radius: var(--radius-full);
+
+font-size: 17px;
+
+font-weight: 500;
+
+font-family: var(--font);
+
+cursor: pointer;
+
+display: flex;
+
+align-items: center;
+
+gap: 6px;
+
+transition: var(--transition);
+
+}
+
+.btn-logout:hover {
+
+background: var(--red);
+
+color: #fff;
+
+transform: translateY(-1px);
+
+}
 
 /* ── PAGE SHELL ── */
 .page { background:var(--white); min-height:calc(100vh - 88px); }
