@@ -30,6 +30,16 @@ export default function IdentifyPage() {
   };
 
   const analyzeWaste = async () => {
+    // This alert will pop up a window in your browser. 
+    // If you don't see this, the button is not connected to this function.
+    alert("Function triggered!"); 
+    
+    console.log("Analyzing...");
+    if (!file) return;
+    setLoading(true);
+
+
+    
     if (!file) return;
     setLoading(true);
     setError(null);
@@ -43,12 +53,17 @@ export default function IdentifyPage() {
         body: formData,
       });
 
+      
+
       if (!mlResponse.ok) {
         const errData = await mlResponse.json().catch(() => ({}));
         throw new Error(errData.detail || "Model service failed to analyze the image.");
       }
 
       const prediction = await mlResponse.json();
+
+      // --- ADD THIS LINE ---
+      console.log("DEBUG: Raw prediction from backend:", prediction);
       
       // Defensively handle category matching
       const predictedClass = (prediction.predicted_class || "").toLowerCase();
@@ -64,6 +79,7 @@ export default function IdentifyPage() {
         weight: "N/A",
         top3: prediction.top3 || [],
       };
+      console.log("THE RESULT IS:", finalResult);
 
       setResult(finalResult);
       setLoading(false);
@@ -136,12 +152,16 @@ export default function IdentifyPage() {
           <div className="dash-card">
             <img src={preview} alt="preview" className="preview-img" />
             <div style={{ display: "flex", gap: "10px" }}>
-              <button className="btn-analyze" onClick={analyzeWaste} disabled={loading}>
-                {loading ? "Analyzing..." : "Analyze Waste"}
-              </button>
-              <button className="btn-select" style={{ background: "#ef4444" }} onClick={removeFile} disabled={loading}>
-                Remove
-              </button>
+              <button 
+  className="btn-analyze" 
+  onClick={() => {
+    console.log("BUTTON CLICKED!");
+    analyzeWaste();
+  }} 
+  disabled={loading}
+>
+  {loading ? "Analyzing..." : "Analyze Waste"}
+</button>
             </div>
           </div>
         )}
@@ -153,14 +173,14 @@ export default function IdentifyPage() {
           </div>
         )}
 
-        {result && (
-          <div className="result-card">
-            <div className="result-title">Analysis Result</div>
-            <div className="result-type">{result.emoji} {result.name}</div>
-            <div className="result-conf">Confidence: <b>{result.confidence}%</b></div>
-            <div className="result-disposal"><b>Disposal Instructions:</b> {result.instructions}</div>
-            <div className="result-points">+{result.points} points earned</div>
+        {/* RESULT */}
+        {result ? (
+          <div style={{ border: "5px solid hotpink", padding: "20px", marginTop: "20px" }}>
+            <h2>DEBUG: Result State is Active!</h2>
+            <pre>{JSON.stringify(result, null, 2)}</pre>
           </div>
+        ) : (
+          <p>DEBUG: Result is null (waiting for analysis)</p>
         )}
       </div>
     </div>
