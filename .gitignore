@@ -28,3 +28,5 @@ dist-ssr
 venv/
 __pycache__/
 app.py
+server/*.db-shm
+server/*.db-wal
