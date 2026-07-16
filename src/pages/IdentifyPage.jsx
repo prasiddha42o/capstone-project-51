@@ -53,7 +53,7 @@ export default function IdentifyPage() {
       setLoading(false);
     }, 2000);
   };
-//added ml fetch
+
   return (
     <div className="page">
       <div className="page-inner">
