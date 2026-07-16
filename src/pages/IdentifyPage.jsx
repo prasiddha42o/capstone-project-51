@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { supabase } from "../supabaseClient";
 
+// Refining analyzeWaste logic
 export default function IdentifyPage() {
   const [file, setFile] = useState(null);
   const [preview, setPreview] = useState(null);
