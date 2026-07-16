@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { supabase } from "../supabaseClient";
 
-// Refining analyzeWaste logic
+
 export default function IdentifyPage() {
   const [file, setFile] = useState(null);
   const [preview, setPreview] = useState(null);
@@ -53,7 +53,7 @@ export default function IdentifyPage() {
       setLoading(false);
     }, 2000);
   };
-
+//added ml fetch
   return (
     <div className="page">
       <div className="page-inner">
