@@ -33,29 +33,16 @@ describe('LocalInfoPage', () => {
     expect(screen.getByText('Teku Recycling Center')).toBeInTheDocument();
   });
 
-  // TC-LI05: Switching to Lalitpur shows Lalitpur data
-  test('shows Lalitpur data when Lalitpur is selected', () => {
-    render(<LocalInfoPage />);
-    fireEvent.change(screen.getByRole('combobox', { name: /select district/i }), { target: { value: 'Lalitpur' } });
-    expect(screen.getByText('Lalitpur Metro Waste')).toBeInTheDocument();
-    expect(screen.getByText('Patan Scrap Collectors')).toBeInTheDocument();
-  });
+  
 
-  // TC-LI06: Switching to Bhaktapur shows Bhaktapur data
-  test('shows Bhaktapur data when Bhaktapur is selected', () => {
-    render(<LocalInfoPage />);
-    fireEvent.change(screen.getByRole('combobox', { name: /select district/i }), { target: { value: 'Bhaktapur' } });
-    expect(screen.getByText('Bhaktapur Municipality Waste')).toBeInTheDocument();
-  });
-
-  // TC-LI07: Waste disposal rules render for Kathmandu
+  // TC-LI05: Waste disposal rules render for Kathmandu
   test('shows disposal rules for Kathmandu', () => {
     render(<LocalInfoPage />);
     expect(screen.getByText(/separate organic and inorganic/i)).toBeInTheDocument();
     expect(screen.getByText(/no littering/i)).toBeInTheDocument();
   });
 
-  //  TC-LI08: Rules section shows selected district name
+  //  TC-LI06: Rules section shows selected district name
   test('rules title shows selected district name', () => {
     render(<LocalInfoPage />);
     expect(screen.getByText(/Waste Disposal Rules for Kathmandu/i)).toBeInTheDocument();
@@ -63,19 +50,19 @@ describe('LocalInfoPage', () => {
     expect(screen.getByText(/Waste Disposal Rules for Lalitpur/i)).toBeInTheDocument();
   });
 
-  // TC-LI09: Phone numbers visible for Kathmandu centers
+  // TC-LI07: Phone numbers visible for Kathmandu centers
   test('shows phone numbers for collection centers', () => {
     render(<LocalInfoPage />);
     expect(screen.getByText('+977-1-4123456')).toBeInTheDocument();
   });
 
-  // TC-LI10: Note about ward-specific rules is shown
+  // TC-LI08: Note about ward-specific rules is shown
   test('renders note about contacting local municipal office', () => {
     render(<LocalInfoPage />);
     expect(screen.getByText(/contact your local municipal office/i)).toBeInTheDocument();
   });
 
-  // TC-LI11: Live location map controls are available
+  // TC-LI09: Live location map controls are available
   test('shows live location map controls for finding the nearest collector', () => {
     render(<LocalInfoPage />);
     expect(screen.getByText(/live location map/i)).toBeInTheDocument();

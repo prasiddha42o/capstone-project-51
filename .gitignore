@@ -30,3 +30,5 @@ __pycache__/
 app.py
 server/*.db-shm
 server/*.db-wal
+server/*.db-shm
+server/*.db-wal
