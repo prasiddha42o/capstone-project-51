@@ -18,3 +18,13 @@ This project builds a **complete data pipeline** for waste classification using 
 ## 🧠 Target Classes
 - Plastic, Paper, Metal, Glass
 - Organic, E-waste, Hazardous, General Trash
+
+---
+## 📂 Project Structure
+```text
+model_and_data_pipeline/
+├── notebooks/
+├── src/waste_data_pipeline.py
+├── requirements.txt
+├── README.md
+└── .gitignore
