@@ -13,3 +13,8 @@ This project builds a **complete data pipeline** for waste classification using 
 - Creates **stratified splits (70/15/15)**
 - Augments underrepresented classes
 - Generates a **dataset report**
+
+---
+## 🧠 Target Classes
+- Plastic, Paper, Metal, Glass
+- Organic, E-waste, Hazardous, General Trash
