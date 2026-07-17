@@ -28,3 +28,9 @@ model_and_data_pipeline/
 ├── requirements.txt
 ├── README.md
 └── .gitignore
+
+---
+## ⚙️ Installation & Usage
+```bash
+pip install -r requirements.txt
+python waste_data_pipeline.py --datasets_root ./raw_datasets --output ./dataset
