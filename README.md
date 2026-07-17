@@ -4,3 +4,12 @@ AI-based waste classification system that merges multiple datasets, cleans them,
 
 ## 🚀 Project Overview
 This project builds a **complete data pipeline** for waste classification using multiple datasets.
+
+---
+## 🛠 Pipeline Features
+- Merges **5+ datasets**
+- Maps all labels into **8 standard waste categories**
+- Removes duplicate images using **perceptual hashing**
+- Creates **stratified splits (70/15/15)**
+- Augments underrepresented classes
+- Generates a **dataset report**
