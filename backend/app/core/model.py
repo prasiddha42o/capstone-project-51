@@ -2,10 +2,9 @@
 """
 Everything related to the ResNet50 checkpoint: building the architecture,
 loading trained weights, preprocessing, and running inference.
-Isolated from routing/DB code so the ML side can be tested or swapped
-independently.
 """
 import io
+import json
 from pathlib import Path
 from typing import Any
 
@@ -49,6 +48,13 @@ def get_transform(
     ])
 
 
+def load_class_names(class_index_path: Path) -> list[str]:
+    with open(class_index_path) as f:
+        class_to_idx: dict[str, int] = json.load(f)
+    ordered = sorted(class_to_idx.items(), key=lambda item: item[1])
+    return [name for name, _ in ordered]
+
+
 def load_checkpoint(
     path: Path,
 ) -> tuple[nn.Module, list[str], int, list[float], list[float]]:
@@ -58,25 +64,28 @@ def load_checkpoint(
             "Or set the MODEL_PATH environment variable to the correct file."
         )
 
-    checkpoint = torch.load(path, map_location=DEVICE)
-    class_names = checkpoint.get("class_names")
-    idx_to_class = checkpoint.get("idx_to_class")
-    num_classes = checkpoint.get("num_classes")
-    img_size = checkpoint.get("img_size", DEFAULT_IMG_SIZE)
-    imagenet_mean = checkpoint.get("imagenet_mean", DEFAULT_IMAGENET_MEAN)
-    imagenet_std = checkpoint.get("imagenet_std", DEFAULT_IMAGENET_STD)
+    # This checkpoint IS the raw state_dict (an OrderedDict of tensors),
+    # not a wrapped dict with a "model_state_dict" key -- and it has no
+    # embedded class names, so those come from class_indices.json instead,
+    # which lives next to the checkpoint on disk.
+    state_dict = torch.load(path, map_location=DEVICE)
 
-    if class_names is None:
-        if isinstance(idx_to_class, dict):
-            class_names = [idx_to_class[i] for i in sorted(idx_to_class.keys())]
-        else:
-            raise ValueError("Checkpoint is missing class_names and idx_to_class.")
+    class_index_path = path.parent / "class_indices.json"
+    class_names = load_class_names(class_index_path)
+    num_classes = state_dict["fc.5.weight"].shape[0]
 
-    if num_classes is None:
-        num_classes = len(class_names)
+    if num_classes != len(class_names):
+        raise ValueError(
+            f"Checkpoint has {num_classes} output classes but "
+            f"class_indices.json has {len(class_names)} entries -- these must match."
+        )
+
+    img_size = DEFAULT_IMG_SIZE
+    imagenet_mean = DEFAULT_IMAGENET_MEAN
+    imagenet_std = DEFAULT_IMAGENET_STD
 
     model = build_model(num_classes)
-    model.load_state_dict(checkpoint["model_state_dict"])
+    model.load_state_dict(state_dict)
     model.to(DEVICE)
     model.eval()
 
@@ -104,14 +113,10 @@ def predict_image(
         probs = torch.softmax(logits, dim=1)[0].cpu().numpy()
 
     top_indices = sorted(range(len(probs)), key=lambda i: probs[i], reverse=True)[:3]
-    top3 = [
-        {"class": class_names[i], "confidence": float(probs[i])}
-        for i in top_indices
-    ]
+    top3 = [{"class": class_names[i], "confidence": float(probs[i])} for i in top_indices]
     pred_idx = int(top_indices[0])
     return {
         "predicted_class": class_names[pred_idx],
         "confidence": float(probs[pred_idx]),
         "top3": top3,
     }
-

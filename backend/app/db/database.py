@@ -60,6 +60,19 @@ def get_connection() -> psycopg2.pool.ThreadedConnectionPool:
     return _pool
 
 
+
+CREATE_RESULTS_TABLE = """
+CREATE TABLE IF NOT EXISTS results (
+    id              SERIAL PRIMARY KEY,
+    user_id         INTEGER NOT NULL,
+    type            TEXT NOT NULL,
+    name            TEXT NOT NULL,
+    emoji           TEXT,
+    points          INTEGER NOT NULL DEFAULT 0,
+    created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+"""
+
 def init_db(pool: psycopg2.pool.ThreadedConnectionPool) -> None:
     """
     Creates the predictions table if it doesn't exist.
@@ -69,6 +82,7 @@ def init_db(pool: psycopg2.pool.ThreadedConnectionPool) -> None:
     try:
         with conn.cursor() as cur:
             cur.execute(CREATE_PREDICTIONS_TABLE)
+            cur.execute(CREATE_RESULTS_TABLE)
         conn.commit()
     finally:
         pool.putconn(conn)
