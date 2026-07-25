@@ -12,7 +12,7 @@ from fastapi.responses import JSONResponse
 from app.core.config import CORS_ORIGINS, MODEL_PATH
 from app.core.model import load_checkpoint
 from app.db.database import get_connection, init_db
-from app.routers import auth, predictions
+from app.routers import auth, dashboard, predictions
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("waste_api")
@@ -42,8 +42,20 @@ async def http_exception_handler(request: Request, exc: HTTPException) -> JSONRe
     )
 
 
+@app.exception_handler(HTTPException)
+async def http_exception_handler(request: Request, exc: HTTPException) -> JSONResponse:
+    # Frontend reads `data.error`; FastAPI's default body only has `detail`.
+    # Return both so existing frontend code sees the real message instead
+    # of falling back to a generic "failed" string.
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={"error": exc.detail, "detail": exc.detail},
+    )
+
+
 app.include_router(auth.router)
 app.include_router(predictions.router)
+app.include_router(dashboard.router)
 
 
 @app.on_event("startup")

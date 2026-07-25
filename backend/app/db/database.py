@@ -201,3 +201,66 @@ def save_result(
         conn.commit()
     finally:
         pool.putconn(conn)
+
+
+def user_exists(pool: psycopg2.pool.ThreadedConnectionPool, user_id: int) -> bool:
+    conn = pool.getconn()
+    try:
+        with conn.cursor() as cur:
+            cur.execute("SELECT 1 FROM users WHERE id = %s", (user_id,))
+            return cur.fetchone() is not None
+    finally:
+        pool.putconn(conn)
+
+
+def fetch_dashboard_stats(pool: psycopg2.pool.ThreadedConnectionPool, user_id: int) -> dict:
+    """
+    Returns everything DashboardPage.jsx needs in one call: aggregate stats,
+    a breakdown by waste type (for the pie chart), and recent scan history.
+    """
+    conn = pool.getconn()
+    try:
+        with conn.cursor(cursor_factory=RealDictCursor) as cur:
+            cur.execute(
+                """
+                SELECT
+                    COUNT(*) AS items_identified,
+                    COALESCE(SUM(points), 0) AS total_points
+                FROM results
+                WHERE user_id = %s
+                """,
+                (user_id,),
+            )
+            totals = cur.fetchone()
+
+            cur.execute(
+                """
+                SELECT type, COUNT(*) AS value
+                FROM results
+                WHERE user_id = %s
+                GROUP BY type
+                """,
+                (user_id,),
+            )
+            type_counts = cur.fetchall()
+
+            cur.execute(
+                """
+                SELECT type, name, emoji, points, created_at
+                FROM results
+                WHERE user_id = %s
+                ORDER BY created_at DESC
+                LIMIT 10
+                """,
+                (user_id,),
+            )
+            history_rows = cur.fetchall()
+
+        return {
+            "items_identified": totals["items_identified"],
+            "total_points": totals["total_points"],
+            "type_counts": [dict(row) for row in type_counts],
+            "history_rows": [dict(row) for row in history_rows],
+        }
+    finally:
+        pool.putconn(conn)
