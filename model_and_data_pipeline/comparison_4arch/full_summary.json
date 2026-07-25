@@ -1,0 +1,91 @@
+{
+  "dataset": "/Users/prassanna/Downloads/Capstone_project/model_and_data_pipeline/dataset_v2",
+  "device": "mps",
+  "comparison_table": [
+    {
+      "Model": "resnet50",
+      "Test Acc": 0.8546,
+      "Top-2 Acc": 0.9415,
+      "F1 (weighted)": 0.8555,
+      "F1 (macro)": 0.858,
+      "Params (M)": 24.04,
+      "Checkpoint (MB)": 92.0
+    },
+    {
+      "Model": "mobilenet_v2",
+      "Test Acc": 0.8071,
+      "Top-2 Acc": 0.9266,
+      "F1 (weighted)": 0.809,
+      "F1 (macro)": 0.7894,
+      "Params (M)": 2.55,
+      "Checkpoint (MB)": 10.0
+    },
+    {
+      "Model": "efficientnet_b0",
+      "Test Acc": 0.7989,
+      "Top-2 Acc": 0.9153,
+      "F1 (weighted)": 0.8016,
+      "F1 (macro)": 0.7746,
+      "Params (M)": 4.34,
+      "Checkpoint (MB)": 16.8
+    },
+    {
+      "Model": "densenet121",
+      "Test Acc": 0.7688,
+      "Top-2 Acc": 0.9034,
+      "F1 (weighted)": 0.774,
+      "F1 (macro)": 0.7336,
+      "Params (M)": 7.22,
+      "Checkpoint (MB)": 28.1
+    }
+  ],
+  "best_architecture": "resnet50",
+  "per_class_f1_by_architecture": {
+    "efficientnet_b0": {
+      "e-waste": 0.8569,
+      "general_trash": 0.8855,
+      "glass": 0.7495,
+      "hazardous": 0.6826,
+      "metal": 0.6661,
+      "organic": 0.8496,
+      "paper": 0.7818,
+      "plastic": 0.7248
+    },
+    "resnet50": {
+      "e-waste": 0.8928,
+      "general_trash": 0.9295,
+      "glass": 0.8201,
+      "hazardous": 0.9057,
+      "metal": 0.8009,
+      "organic": 0.8712,
+      "paper": 0.837,
+      "plastic": 0.8069
+    },
+    "mobilenet_v2": {
+      "e-waste": 0.8213,
+      "general_trash": 0.8894,
+      "glass": 0.7503,
+      "hazardous": 0.7713,
+      "metal": 0.7089,
+      "organic": 0.8566,
+      "paper": 0.777,
+      "plastic": 0.7401
+    },
+    "densenet121": {
+      "e-waste": 0.7736,
+      "general_trash": 0.8693,
+      "glass": 0.7468,
+      "hazardous": 0.5826,
+      "metal": 0.6239,
+      "organic": 0.8261,
+      "paper": 0.7475,
+      "plastic": 0.6993
+    }
+  },
+  "model_paths": {
+    "efficientnet_b0": "/Users/prassanna/Downloads/Capstone_project/model_and_data_pipeline/model_efficientnet_b0/primary_checkpoint.pth",
+    "resnet50": "/Users/prassanna/Downloads/Capstone_project/model_and_data_pipeline/model_resnet50/primary_checkpoint.pth",
+    "mobilenet_v2": "/Users/prassanna/Downloads/Capstone_project/model_and_data_pipeline/model_mobilenet_v2/primary_checkpoint.pth",
+    "densenet121": "/Users/prassanna/Downloads/Capstone_project/model_and_data_pipeline/model_densenet121/primary_checkpoint.pth"
+  }
+}
