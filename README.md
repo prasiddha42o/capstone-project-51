@@ -2,13 +2,11 @@
 
 AI-based waste classification system that merges multiple datasets, cleans them, and prepares a structured dataset for model training.
 
----
-
 ## 🚀 Project Overview
-
 This project builds a **complete data pipeline** for waste classification using multiple datasets.
 
-It:
+---
+## 🛠 Pipeline Features
 - Merges **5+ datasets**
 - Maps all labels into **8 standard waste categories**
 - Removes duplicate images using **perceptual hashing**
@@ -17,48 +15,22 @@ It:
 - Generates a **dataset report**
 
 ---
-
 ## 🧠 Target Classes
-
-- Plastic  
-- Paper  
-- Metal  
-- Glass  
-- Organic  
-- E-waste  
-- Hazardous  
-- General Trash  
+- Plastic, Paper, Metal, Glass
+- Organic, E-waste, Hazardous, General Trash
 
 ---
-
 ## 📂 Project Structure
+```text
 model_and_data_pipeline/
-│
 ├── notebooks/
-│ ├── GreenNepal_Inference.ipynb
-│ └── Group51_Training_Local.ipynb
-│
-├── src/
-│ └── waste_data_pipeline.py
-│
+├── src/waste_data_pipeline.py
 ├── requirements.txt
 ├── README.md
 └── .gitignore
 
-
 ---
-
-## ⚙️ Installation
-
+## ⚙️ Installation & Usage
 ```bash
 pip install -r requirements.txt
-
-## ▶️ How to Run
-
-Place all datasets inside:
-
-raw_datasets/
-
-Then run:
-
 python waste_data_pipeline.py --datasets_root ./raw_datasets --output ./dataset

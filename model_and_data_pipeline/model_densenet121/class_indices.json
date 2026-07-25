@@ -1,0 +1,10 @@
+{
+  "e-waste": 0,
+  "general_trash": 1,
+  "glass": 2,
+  "hazardous": 3,
+  "metal": 4,
+  "organic": 5,
+  "paper": 6,
+  "plastic": 7
+}

@@ -1,0 +1,5 @@
+Model,Test Acc,Top-2 Acc,F1 (weighted),F1 (macro),Params (M),Checkpoint (MB)
+resnet50,0.8546,0.9415,0.8555,0.858,24.04,92.0
+mobilenet_v2,0.8071,0.9266,0.809,0.7894,2.55,10.0
+efficientnet_b0,0.7989,0.9153,0.8016,0.7746,4.34,16.8
+densenet121,0.7688,0.9034,0.774,0.7336,7.22,28.1
