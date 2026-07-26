@@ -11,8 +11,7 @@ import {
 import { StarIcon, ScanIcon, AwardIcon } from "../components/Icons";
 // IMPORTING THE CLIENT WRAPPER TO PROVIDE SUPABASE INTEGRATION REQUIREMENTS
 import { supabase } from "../supabaseClient";
-
-const API_BASE = "http://localhost:8000";
+import { buildApiUrl } from "../utils/api";
 
 export default function DashboardPage({ user }) {
   const userId = user?.id;
@@ -37,7 +36,7 @@ export default function DashboardPage({ user }) {
     let isMounted = true;
 
     const fetchDashboard = () => {
-      fetch(`${API_BASE}/dashboard/${userId}`)
+      fetch(buildApiUrl(`/api/dashboard/${userId}`))
         .then((res) => {
           if (!res.ok) throw new Error("Failed to load dashboard data");
           return res.json();

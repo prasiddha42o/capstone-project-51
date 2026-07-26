@@ -4,12 +4,24 @@ import DashboardPage from '../pages/DashboardPage';
 // Recharts uses ResizeObserver which isn't in jsdom — mock it
 global.ResizeObserver = class { observe() {} unobserve() {} disconnect() {} };
 
+// Mock fetch to return deterministic dashboard data
+const mockData = {
+  stats: { total_points: 380, items_identified: 38, milestone: 50 },
+  pie_data: [],
+  history: [],
+  badges: [{ name: 'Starter', emoji: '🏅', earned: true }],
+};
+
+beforeAll(() => {
+  vi.stubGlobal('fetch', vi.fn(() => Promise.resolve({ ok: true, json: async () => mockData })));
+});
+
 describe('DashboardPage', () => {
 
   //  TC-D01: Page heading renders
-  test('renders Personal Impact Dashboard heading', () => {
-    render(<DashboardPage />);
-    expect(screen.getByText('Personal Impact Dashboard')).toBeInTheDocument();
+  test('renders Personal Impact Dashboard heading', async () => {
+    render(<DashboardPage user={{ id: 'u1' }} />);
+    expect(await screen.findByText('Personal Impact Dashboard')).toBeInTheDocument();
   });
 
   // TC-D02: Total Points stat card visible
