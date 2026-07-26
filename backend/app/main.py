@@ -58,6 +58,11 @@ app.include_router(predictions.router)
 app.include_router(dashboard.router)
 
 
+@app.get("/")
+async def root() -> dict:
+    return {"status": "ok", "message": "Waste Classification API is running. See /docs for endpoints."}
+
+
 @app.on_event("startup")
 async def startup_event() -> None:
     app.state.model = None

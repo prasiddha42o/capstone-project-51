@@ -1,5 +1,5 @@
 # auth.py
-import os
+import re
 from datetime import datetime, timezone
 from typing import Any
 
@@ -12,8 +12,10 @@ from app.db.database import get_connection
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
+EMAIL_PATTERN = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
+# At least 8 chars, at least one uppercase letter, at least one digit
+PASSWORD_PATTERN = re.compile(r"^(?=.*[A-Z])(?=.*\d).{8,}$")
 
-# ── Pydantic models ──────────────────────────────────────────────────────────
 
 class RegisterRequest(BaseModel):
     name: str
@@ -25,8 +27,6 @@ class LoginRequest(BaseModel):
     email: str
     password: str
 
-
-# ── Helpers ──────────────────────────────────────────────────────────────────
 
 def get_user_by_email(pool, email: str) -> dict | None:
     conn = pool.getconn()
@@ -66,37 +66,31 @@ def create_user(pool, username: str, email: str, password_hash: str) -> dict:
         pool.putconn(conn)
 
 
-# ── Routes ───────────────────────────────────────────────────────────────────
-
 @router.post("/register")
 async def register(body: RegisterRequest) -> dict:
     pool = get_connection()
 
-    # 1. Validate
     name = body.name.strip()
     email = body.email.strip().lower()
-    password = body.password.strip()
+    password = body.password
 
     if not name or not email or not password:
         raise HTTPException(status_code=400, detail="Name, email and password are required")
 
-    if "@" not in email:
-        raise HTTPException(status_code=400, detail="Invalid email format")
+    if not EMAIL_PATTERN.match(email):
+        raise HTTPException(status_code=400, detail="Please enter a valid email address")
 
-    if len(password) < 6:
-        raise HTTPException(status_code=400, detail="Password must be at least 6 characters")
+    if not PASSWORD_PATTERN.match(password):
+        raise HTTPException(
+            status_code=400,
+            detail="Password must be at least 8 characters and include an uppercase letter and a number",
+        )
 
-    # 2. Check existing user
     existing = get_user_by_email(pool, email)
     if existing:
-        raise HTTPException(status_code=409, detail="User already exists")
+        raise HTTPException(status_code=409, detail="An account with this email already exists")
 
-    # 3. Hash password
-    password_hash = bcrypt.hashpw(
-        password.encode("utf-8"), bcrypt.gensalt()
-    ).decode("utf-8")
-
-    # 4. Create user
+    password_hash = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
     user = create_user(pool, name, email, password_hash)
 
     return {
@@ -114,21 +108,16 @@ async def login(body: LoginRequest) -> dict:
     pool = get_connection()
 
     email = body.email.strip().lower()
-    password = body.password.strip()
+    password = body.password
 
     if not email or not password:
         raise HTTPException(status_code=400, detail="Email and password are required")
 
-    # 1. Find user
     user = get_user_by_email(pool, email)
     if not user:
         raise HTTPException(status_code=401, detail="Invalid email or password")
 
-    # 2. Check password
-    is_match = bcrypt.checkpw(
-        password.encode("utf-8"),
-        user["password_hash"].encode("utf-8"),
-    )
+    is_match = bcrypt.checkpw(password.encode("utf-8"), user["password_hash"].encode("utf-8"))
     if not is_match:
         raise HTTPException(status_code=401, detail="Invalid email or password")
 

@@ -90,6 +90,7 @@ async def predict(
             "type": meta["type"],
             "confidence": round(prediction_data["confidence"] * 100, 1),
             "instructions": meta["instructions"],
+            "steps": meta["steps"],
             "points": meta["points"],
             "top3": prediction_data["top3"],
         }
