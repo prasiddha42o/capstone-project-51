@@ -10,6 +10,7 @@ import {
   BuildingIcon,
 } from "../components/Icons";
 import { DISTRICTS, COLLECTION_DATA, MUNICIPALITIES } from "../data/localData";
+import image1 from "../../image1.jpeg";
 
 const DEFAULT_DISTRICT = "Kathmandu";
 const DISTRICT_COORDINATES = {
@@ -325,7 +326,10 @@ export default function LocalInfoPage() {
         </div>
 
         {/* Waste Rules */}
-        <div className="rules-card">
+        <div
+          className={district === DEFAULT_DISTRICT ? "rules-card rules-card-bg" : "rules-card"}
+          style={district === DEFAULT_DISTRICT ? { backgroundImage: `url(${image1})` } : undefined}
+        >
           <div className="rules-title">
             <InfoIcon style={{ color: "#fff" }} />
             Waste Disposal Rules for {district}

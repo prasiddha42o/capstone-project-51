@@ -69,6 +69,7 @@ describe('LocalInfoPage', () => {
     expect(screen.getByRole('combobox', { name: /select municipality/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /use my location/i })).toBeInTheDocument();
   });
+  
 
   test('renders the correct Kathmandu municipalities', () => {
     render(<LocalInfoPage />);

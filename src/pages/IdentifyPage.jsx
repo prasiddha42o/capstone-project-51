@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { supabase } from "../supabaseClient";
+import image2 from "../../image2.jpeg";
 
 
 export default function IdentifyPage() {
@@ -53,7 +54,7 @@ export default function IdentifyPage() {
       setLoading(false);
     }, 2000);
   };
-//ui 
+
   return (
     <div className="page">
       <div className="page-inner">
@@ -63,7 +64,7 @@ export default function IdentifyPage() {
           <div className="ai-badge">🤖 AI-Powered</div>
         </div>
 
-        <div className="guidelines-card">
+        <div className="guidelines-card bg-image" style={{ backgroundImage: `url(${image2})` }}>
           <div className="guidelines-card-header">
             <div className="guidelines-title">Image Capture Guidelines</div>
           </div>
