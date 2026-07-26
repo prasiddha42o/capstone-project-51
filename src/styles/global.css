@@ -314,11 +314,18 @@ body {
 .tag-blue { background:var(--blue-light); color:var(--blue); }
 .tag-amber { background:var(--amber-light); color:#92400e; }
 .collection-detail { display:flex; align-items:center; gap:8px; font-size:14px; color:var(--gray-600); margin-top:8px; }
-.rules-card { background:linear-gradient(135deg, var(--green-deep), var(--green-dark)); border-radius:var(--radius-lg); padding:32px 34px; }
+.rules-card { background:linear-gradient(135deg, var(--green-deep), var(--green-dark)); border-radius:var(--radius-lg); padding:32px 34px; position:relative; overflow:hidden; }
+.rules-card.rules-card-bg { background-size:cover; background-position:center; background-repeat:no-repeat; border:none; }
+.rules-card.rules-card-bg::before { content:""; position:absolute; inset:0; background:rgba(15,23,42,.68); }
+.rules-card.rules-card-bg > * { position:relative; z-index:1; }
 .rules-title { display:flex; align-items:center; gap:10px; font-size:18.5px; font-weight:700; color:#fff; margin-bottom:20px; }
 .rules-list { list-style:none; }
 .rules-list li { font-size:15.5px; color:rgba(255,255,255,.9); padding:8px 0 8px 26px; position:relative; line-height:1.6; }
 .rules-list li::before { content:"✓"; position:absolute; left:0; color:var(--green-muted); font-weight:700; }
+
+.guidelines-card.bg-image { position:relative; overflow:hidden; border:1px solid rgba(255,255,255,.22); color:#fff; }
+.guidelines-card.bg-image::before { content:""; position:absolute; inset:0; background:rgba(15,23,42,.42); }
+.guidelines-card.bg-image > * { position:relative; z-index:1; }
 .rules-note { font-size:13px; color:rgba(255,255,255,.55); margin-top:18px; font-style:italic; }
 
 /* ── ABOUT ── */
