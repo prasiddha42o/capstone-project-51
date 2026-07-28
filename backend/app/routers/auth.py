@@ -4,6 +4,7 @@ from datetime import datetime, timezone
 from typing import Any
 
 import bcrypt
+import psycopg2.errors
 import psycopg2.pool
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
@@ -62,6 +63,9 @@ def create_user(pool, username: str, email: str, password_hash: str) -> dict:
             result = dict(zip(cols, row))
         conn.commit()
         return result
+    except psycopg2.errors.UniqueViolation:
+        conn.rollback()
+        raise HTTPException(status_code=409, detail="That username is already taken")
     finally:
         pool.putconn(conn)
 
