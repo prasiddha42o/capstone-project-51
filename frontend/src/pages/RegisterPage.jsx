@@ -1,28 +1,43 @@
 import { useState } from "react";
 import {
-  LeafIcon, MailIcon, LockIcon, UserIcon, EyeIcon, GoogleIcon, GithubIcon,
+  LeafIcon, MailIcon, LockIcon, UserIcon, EyeIcon,
 } from "../components/Icons";
+import LegalModal from "../components/LegalModal";
+import { TERMS_OF_SERVICE, PRIVACY_POLICY } from "../content/legalContent";
+import { validateEmail } from "../utils/validation";
 import { registerUser } from "../utils/auth";
 
-export default function RegisterPage({ onLogin, onGoLogin }) {
+const PASSWORD_PATTERN = /^(?=.*[A-Z])(?=.*\d).{8,}$/;
+
+export default function RegisterPage({ onGoLogin }) {
   const [showPw, setShowPw] = useState(false);
   const [showCpw, setShowCpw] = useState(false);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [legalDoc, setLegalDoc] = useState(null); // "terms" | "privacy" | null
+
+  const openLegalDoc = (doc) => (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setLegalDoc(doc);
+  };
 
   const handleRegister = async () => {
-    // Validation
-    if (!name || !email || !password || !confirmPassword) {
+    const trimmedName = name.trim();
+    const trimmedEmail = email.trim();
+
+    if (!trimmedName || !trimmedEmail || !password || !confirmPassword) {
       setError("All fields are required");
       return;
     }
 
-    const emailPattern = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
-    if (!emailPattern.test(email)) {
+    if (!validateEmail(trimmedEmail)) {
       setError("Please enter a valid email address");
       return;
     }
@@ -32,17 +47,20 @@ export default function RegisterPage({ onLogin, onGoLogin }) {
       return;
     }
 
-    const passwordPattern = /^(?=.*[A-Z])(?=.*\d).{8,}$/;
-    if (!passwordPattern.test(password)) {
+    if (!PASSWORD_PATTERN.test(password)) {
       setError("Password must be at least 8 characters and include an uppercase letter and a number");
+      return;
+    }
+
+    if (!agreedToTerms) {
+      setError("You must agree to the Terms of Service and Privacy Policy");
       return;
     }
 
     setLoading(true);
     setError("");
 
-    // ✅ FIXED LINE (THIS WAS THE BUG)
-    const result = await registerUser(name, email, password);
+    const result = await registerUser(trimmedName, trimmedEmail, password);
 
     setLoading(false);
 
@@ -51,8 +69,30 @@ export default function RegisterPage({ onLogin, onGoLogin }) {
       return;
     }
 
-    onLogin?.(result.user);
+    setSuccess(true);
   };
+
+  if (success) {
+    return (
+      <div className="auth-bg">
+        <div className="auth-card">
+          <div className="auth-logo">
+            <LeafIcon size={22} />
+            <span className="auth-logo-text">Waste Assistant</span>
+          </div>
+
+          <h1 className="auth-title">Account Created</h1>
+          <p className="auth-sub">
+            Your account was created successfully. Please login to continue.
+          </p>
+
+          <button type="button" className="btn-primary" onClick={onGoLogin}>
+            Go to Login
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="auth-bg">
@@ -91,8 +131,12 @@ export default function RegisterPage({ onLogin, onGoLogin }) {
               className="form-input"
               type="email"
               placeholder="you@example.com"
+              autoComplete="email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => {
+                setEmail(e.target.value);
+                if (error) setError("");
+              }}
             />
           </div>
         </div>
@@ -133,31 +177,44 @@ export default function RegisterPage({ onLogin, onGoLogin }) {
           </div>
         </div>
 
-        <p className="terms-text">
-          I agree to the <span className="link">Terms of Service</span> and{" "}
-          <span className="link">Privacy Policy</span>
-        </p>
+        <label className="checkbox-label terms-text">
+          <input
+            type="checkbox"
+            checked={agreedToTerms}
+            onChange={(e) => {
+              setAgreedToTerms(e.target.checked);
+              if (error) setError("");
+            }}
+          />{" "}
+          I agree to the{" "}
+          <span className="link" onClick={openLegalDoc("terms")}>Terms of Service</span> and{" "}
+          <span className="link" onClick={openLegalDoc("privacy")}>Privacy Policy</span>
+        </label>
 
-        <button className="btn-primary" onClick={handleRegister} disabled={loading}>
+        <button className="btn-primary" onClick={handleRegister} disabled={loading || !agreedToTerms}>
           {loading ? "Creating account…" : "Create Account"}
         </button>
-
-        <div className="divider">
-          <div className="divider-line" />
-          <span className="divider-text">Or sign up with</span>
-          <div className="divider-line" />
-        </div>
-
-        <div className="social-btns">
-          <button className="btn-social"><GoogleIcon /> Google</button>
-          <button className="btn-social"><GithubIcon /> GitHub</button>
-        </div>
 
         <p className="auth-footer">
           Already have an account?{" "}
           <span className="link" onClick={onGoLogin}>Login here</span>
         </p>
       </div>
+
+      {legalDoc === "terms" && (
+        <LegalModal
+          title="Terms of Service"
+          sections={TERMS_OF_SERVICE}
+          onClose={() => setLegalDoc(null)}
+        />
+      )}
+      {legalDoc === "privacy" && (
+        <LegalModal
+          title="Privacy Policy"
+          sections={PRIVACY_POLICY}
+          onClose={() => setLegalDoc(null)}
+        />
+      )}
     </div>
   );
 }

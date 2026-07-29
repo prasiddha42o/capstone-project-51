@@ -74,7 +74,6 @@ export default function App() {
   if (screen === "register") {
     return (
       <RegisterPage
-        onLogin={handleLogin}
         onGoLogin={() => setScreen("login")}
       />
     );

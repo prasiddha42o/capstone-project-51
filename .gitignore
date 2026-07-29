@@ -11,6 +11,7 @@ waste_env/
 venv/
 env/
 .venv/
+*.env.example
 
 # Jupyter
 .ipynb_checkpoints/

@@ -99,11 +99,11 @@ test.only('calls onLogin when valid credentials are entered and Login is clicked
     expect(passwordInput.value).toBe('mypassword123');
   });
 
-  // TC-L08: Social login buttons are present
-  test('renders Google and GitHub social login buttons', () => {
+  // TC-L08: Social login buttons are not present
+  test('does not render Google and GitHub social login buttons', () => {
     render(<LoginPage onLogin={() => {}} onGoRegister={() => {}} />);
-    expect(screen.getByRole('button', { name: /google/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /github/i })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /google/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /github/i })).not.toBeInTheDocument();
   });
 
   // TC-L09: Remember me checkbox is present
@@ -112,9 +112,9 @@ test.only('calls onLogin when valid credentials are entered and Login is clicked
     expect(screen.getByLabelText(/remember me/i)).toBeInTheDocument();
   });
 
-  // TC-L10: Forgot password link is visible
-  test('renders Forgot password link', () => {
+  // TC-L10: Forgot password link is not present
+  test('does not render Forgot password link', () => {
     render(<LoginPage onLogin={() => {}} onGoRegister={() => {}} />);
-    expect(screen.getByText(/forgot password/i)).toBeInTheDocument();
+    expect(screen.queryByText(/forgot password/i)).not.toBeInTheDocument();
   });
 });
