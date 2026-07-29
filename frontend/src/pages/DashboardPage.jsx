@@ -11,8 +11,7 @@ import {
 import { StarIcon, ScanIcon, AwardIcon } from "../components/Icons";
 // IMPORTING THE CLIENT WRAPPER TO PROVIDE SUPABASE INTEGRATION REQUIREMENTS
 import { supabase } from "../supabaseClient";
-
-const API_BASE = "http://localhost:8000";
+import { API_BASE } from "../config";
 
 export default function DashboardPage({ user }) {
   const userId = user?.id;

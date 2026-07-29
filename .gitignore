@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # ==========================
 # Python
 # ==========================
@@ -11,7 +10,6 @@ waste_env/
 venv/
 env/
 .venv/
-*.env.example
 
 # Jupyter
 .ipynb_checkpoints/
@@ -69,4 +67,3 @@ dist/
 temp/
 tmp/
 .cache/
-=======

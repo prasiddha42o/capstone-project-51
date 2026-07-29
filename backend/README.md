@@ -72,7 +72,7 @@ python waste_data_pipeline.py --datasets_root ./raw_datasets --output ./dataset
 2. Start the API server:
 
 ```powershell
-cd "C:\Users\arbit\OneDrive\Desktop\cpstone"
+cd path\to\Capstone_project\backend
 python app.py
 ```
 
@@ -86,7 +86,7 @@ uvicorn app:app --reload --host 0.0.0.0 --port 8000
 
 ```powershell
 Invoke-RestMethod -Uri "http://localhost:8000/health" -Method Get
-Invoke-RestMethod -Uri "http://localhost:8000/predict" -Method Post -Form @{ file = Get-Item 'C:\path\to\image.jpg' }
+Invoke-RestMethod -Uri "http://localhost:8000/predict" -Method Post -Form @{ file = Get-Item 'path\to\image.jpg' }
 ```
 
 4. Prediction logging is stored in SQLite at `db/waste_predictions.db`.

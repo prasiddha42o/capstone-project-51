@@ -5,10 +5,11 @@ Central place for environment-driven settings and constants.
 import os
 from pathlib import Path
 
-MODEL_PATH = Path(os.getenv(
-    "MODEL_PATH",
-    "/Users/prassanna/Downloads/Capstone_project/model_and_data_pipeline/model_resnet50/primary_best.pth",
-))
+# backend/app/core/config.py -> repo root is three levels up
+REPO_ROOT = Path(__file__).resolve().parents[3]
+DEFAULT_MODEL_PATH = REPO_ROOT / "model_and_data_pipeline" / "model_resnet50" / "primary_best.pth"
+
+MODEL_PATH = Path(os.getenv("MODEL_PATH", str(DEFAULT_MODEL_PATH)))
 
 DEFAULT_IMG_SIZE = 224
 DEFAULT_IMAGENET_MEAN = [0.485, 0.456, 0.406]
