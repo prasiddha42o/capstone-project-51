@@ -5,6 +5,7 @@ import RegisterPage from "./pages/RegisterPage";
 import HomePage from "./pages/HomePage";
 import IdentifyPage from "./pages/IdentifyPage";
 import DashboardPage from "./pages/DashboardPage";
+import KnowledgeBasePage from "./pages/KnowledgeBasePage";
 import LocalInfoPage from "./pages/LocalInfoPage";
 import AboutPage from "./pages/AboutPage";
 import { getCurrentUser, logoutUser } from "./utils/auth";
@@ -56,8 +57,9 @@ export default function App() {
         />
       );
     }
-    if (activePage === "My Dashboard") return <DashboardPage user={user} refreshKey={refreshKey} />;
-    if (activePage === "Local Info")   return <LocalInfoPage />;
+    if (activePage === "My Dashboard")  return <DashboardPage user={user} refreshKey={refreshKey} />;
+    if (activePage === "Knowledge Base") return <KnowledgeBasePage />;
+    if (activePage === "Local Info")    return <LocalInfoPage />;
     if (activePage === "About")        return <AboutPage />;
     return <HomePage setPage={handlePageChange} />;
   };

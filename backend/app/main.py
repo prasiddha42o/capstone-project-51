@@ -12,7 +12,7 @@ from fastapi.responses import JSONResponse
 from app.core.config import CORS_ORIGINS, MODEL_PATH
 from app.core.model import load_checkpoint
 from app.db.database import get_connection, init_db
-from app.routers import auth, dashboard, predictions
+from app.routers import auth, dashboard, knowledge, predictions
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("waste_api")
@@ -56,6 +56,7 @@ async def http_exception_handler(request: Request, exc: HTTPException) -> JSONRe
 app.include_router(auth.router)
 app.include_router(predictions.router)
 app.include_router(dashboard.router)
+app.include_router(knowledge.router)
 
 
 @app.get("/")

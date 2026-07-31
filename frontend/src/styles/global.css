@@ -345,6 +345,26 @@ body {
 .history-meta { font-size:13.5px; color:var(--gray-400); }
 .history-pts { font-size:15px; font-weight:700; color:var(--green-dark); display:flex; align-items:center; gap:4px; }
 
+/* ── KNOWLEDGE BASE ── */
+.kb-header { margin-bottom:32px; }
+.kb-header h1 { font-family:var(--serif); font-size:40px; color:var(--gray-900); margin-bottom:10px; }
+.kb-header p { font-size:16px; color:var(--gray-500); }
+.kb-status { font-size:15px; color:var(--gray-500); margin-bottom:20px; }
+.kb-status-error { color:var(--red); }
+.kb-grid { display:flex; flex-direction:column; gap:16px; }
+.kb-card { background:var(--white); border:1.5px solid var(--gray-200); border-left-width:5px; border-radius:var(--radius); overflow:hidden; transition:var(--transition); }
+.kb-card:hover { box-shadow:var(--shadow-sm); }
+.kb-card-header { width:100%; display:flex; align-items:center; gap:16px; padding:22px 26px; background:none; border:none; cursor:pointer; text-align:left; font-family:var(--font); }
+.kb-card-emoji { font-size:28px; flex-shrink:0; }
+.kb-card-title { flex:1; display:flex; flex-direction:column; gap:4px; min-width:0; }
+.kb-card-name { font-size:17px; font-weight:700; color:var(--gray-800); }
+.kb-card-summary { font-size:14.5px; color:var(--gray-500); }
+.kb-card-points { display:flex; align-items:center; gap:6px; background:var(--amber-light); color:#92400e; font-size:14px; font-weight:700; padding:6px 14px; border-radius:var(--radius-full); flex-shrink:0; white-space:nowrap; }
+.kb-chevron { display:flex; color:var(--gray-400); transition:var(--transition); flex-shrink:0; }
+.kb-chevron-open { transform:rotate(180deg); }
+.kb-steps { list-style:decimal; padding:0 26px 26px 52px; }
+.kb-steps li { font-size:15px; color:var(--gray-600); line-height:1.7; padding:5px 0; }
+
 /* ── LOCAL INFO ── */
 .local-header { margin-bottom:40px; }
 .local-header h1 { font-family:var(--serif); font-size:40px; color:var(--gray-900); margin-bottom:10px; }
