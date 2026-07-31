@@ -56,6 +56,12 @@ def get_connection() -> psycopg2.pool.ThreadedConnectionPool:
             minconn=1,
             maxconn=10,
             dsn=DATABASE_URL,
+            # Without this, a network that can't reach the DB host makes
+            # every address libpq tries hang for the OS's default TCP
+            # timeout (minutes), blocking the whole app's startup. Fail
+            # fast instead -- the app already degrades gracefully when the
+            # DB is unavailable.
+            connect_timeout=5,
         )
     return _pool
 
