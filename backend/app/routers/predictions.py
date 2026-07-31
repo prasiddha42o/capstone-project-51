@@ -15,6 +15,7 @@ from PIL import Image
 
 from app.core.config import MODEL_PATH, VALID_IMAGE_CONTENT
 from app.core.model import DEVICE, predict_image
+from app.core.storage import upload_prediction_image
 from app.data.category_meta import get_category_meta
 from app.db.database import (
     DATABASE_URL,
@@ -104,7 +105,13 @@ async def predict(
             except Exception as exc:
                 logger.warning("Condition classification failed: %s", exc)
 
-        # 5. Build full response the frontend expects
+        # 5. Only upload to storage (and later save to history) for logged-in
+        # users -- no point paying storage cost for anonymous scans.
+        image_url = None
+        if user_id:
+            image_url = upload_prediction_image(contents, file.content_type, file.filename)
+
+        # 6. Build full response the frontend expects
         full_result = {
             "name": meta["name"],
             "emoji": meta["emoji"],
@@ -118,9 +125,10 @@ async def predict(
             "tier_label": reasoner.get_prefix(tier),
             "is_safe": reasoner.is_safe(full_result_partial),
             "condition": condition_result,
+            "image_url": image_url,
         }
 
-        # 6. Log to Supabase predictions table
+        # 7. Log to Supabase predictions table
         log_prediction(
             get_connection(),
             filename=file.filename,
@@ -133,7 +141,7 @@ async def predict(
             request_size=request_size,
         )
 
-        # 7. If user_id provided, save to results table too
+        # 8. If user_id provided, save to results table too
         if user_id:
             save_result(
                 get_connection(),
@@ -142,6 +150,9 @@ async def predict(
                 name=meta["name"],
                 emoji=meta["emoji"],
                 points=meta["points"],
+                image_url=image_url,
+                confidence=full_result["confidence"],
+                tier=tier,
             )
 
         return JSONResponse(content=full_result)

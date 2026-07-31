@@ -55,6 +55,9 @@ async def get_dashboard(user_id: int) -> dict:
             "date": row["created_at"].strftime("%b %d, %Y"),
             "weight": _weight_for_type(row["type"]),
             "points": row["points"],
+            "image_url": row["image_url"],
+            "confidence": row["confidence"],
+            "tier": row["tier"],
         }
         for row in data["history_rows"]
     ]

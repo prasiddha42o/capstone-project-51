@@ -10,6 +10,7 @@ uvicorn>=0.22.0
 torch>=2.0.0
 torchvision>=0.15.0
 python-multipart>=0.0.6
+httpx>=0.28.0
 
 # Optional (recommended for notebooks / ML workflow)
 numpy>=1.24.0
