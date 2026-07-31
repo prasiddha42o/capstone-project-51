@@ -6,7 +6,7 @@ Hazardous predictions use lower thresholds (via `hazardous_offset`) than
 other categories -- it's safer to flag something as hazardous at a lower
 confidence than to miss it, since the cost of under-warning is higher than
 the cost of over-warning. Mirrors the tiering logic prototyped in
-model_and_data_pipeline/GreenNepal_Inference.ipynb.
+model_and_data_pipeline/WasteAssistantNepal_Inference.ipynb.
 """
 
 HAZARDOUS_CLASS = "hazardous"

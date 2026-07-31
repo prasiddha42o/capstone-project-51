@@ -35,7 +35,7 @@ It:
 model_and_data_pipeline/
 │
 ├── notebooks/
-│ ├── GreenNepal_Inference.ipynb
+│ ├── WasteAssistantNepal_Inference.ipynb
 │ └── Group51_Training_Local.ipynb
 │
 ├── src/
