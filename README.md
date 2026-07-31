@@ -1,4 +1,4 @@
-# ♻️ GreenNepal Waste Classification Pipeline
+# ♻️ Waste Assistant Nepal — Waste Classification Pipeline
 
 AI-based waste classification system that merges multiple datasets, cleans them, and prepares a structured dataset for model training.
 

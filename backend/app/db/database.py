@@ -16,7 +16,7 @@ def get_database_url() -> str:
     """Return the configured database URL, supporting either DATABASE_URL or SUPABASE_URL."""
     url = os.getenv("DATABASE_URL") or os.getenv("SUPABASE_URL")
     if not url:
-        return "postgresql://postgres:password@localhost:5432/greennepal"
+        return "postgresql://postgres:password@localhost:5432/waste_assistant_nepal"
 
     if "sslmode=" not in url and "supabase.co" in url:
         separator = "&" if "?" in url else "?"
