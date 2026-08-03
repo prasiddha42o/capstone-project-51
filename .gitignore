@@ -1,40 +1,3 @@
-<<<<<<< HEAD
-# Logs
-logs
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
-
-node_modules
-dist
-dist-ssr
-*.local
-
-# Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-.idea
-.DS_Store
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
-.env
-.env.local
-
-venv/
-__pycache__/
-app.py
-server/*.db-shm
-server/*.db-wal
-server/*.db-shm
-server/*.db-wal
-=======
-<<<<<<< HEAD
 # ==========================
 # Python
 # ==========================
@@ -60,7 +23,6 @@ env/
 *.pkl
 *.joblib
 
-
 # ==========================
 # Datasets
 # ==========================
@@ -72,9 +34,16 @@ model_and_data_pipeline/dataset/
 model_and_data_pipeline/dataset_v2/
 
 # ==========================
-# VS Code
+# VS Code / Editors
 # ==========================
-.vscode/
+.vscode/*
+!.vscode/extensions.json
+.idea
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
 
 # ==========================
 # MacOS
@@ -82,20 +51,31 @@ model_and_data_pipeline/dataset_v2/
 .DS_Store
 
 # ==========================
-# Logs
+# Logs & Database Files
 # ==========================
 *.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+app.py
+server/*.db-shm
+server/*.db-wal
 
 # ==========================
 # Environment Variables
 # ==========================
 .env
 .env.local
+
 # ==========================
 # Build Files
 # ==========================
 build/
 dist/
+dist-ssr/
+*.local
 *.egg-info/
 
 # ==========================
@@ -104,5 +84,3 @@ dist/
 temp/
 tmp/
 .cache/
-=======
->>>>>>> 7739b5608fd806d80d4ef99912bf92338355e345
