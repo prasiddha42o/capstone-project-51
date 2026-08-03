@@ -1,0 +1,16 @@
+Accuracy: 0.7989
+
+               precision    recall  f1-score   support
+
+      e-waste     0.7822    0.9473    0.8569       474
+general_trash     0.8746    0.8966    0.8855      1354
+        glass     0.6390    0.9063    0.7495       619
+    hazardous     0.5238    0.9795    0.6826       146
+        metal     0.5209    0.9235    0.6661       392
+      organic     0.9289    0.7828    0.8496      3490
+        paper     0.7132    0.8650    0.7818      1133
+      plastic     0.8252    0.6462    0.7248      2374
+
+     accuracy                         0.7989      9982
+    macro avg     0.7260    0.8684    0.7746      9982
+ weighted avg     0.8255    0.7989    0.8016      9982
