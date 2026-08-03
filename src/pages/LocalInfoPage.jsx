@@ -1,4 +1,6 @@
 import { useMemo, useState } from "react";
+import localImage1 from "../images/image5.jpeg";
+import localImage2 from "../images/image6.jpg";
 import {
   PhoneIcon,
   ClockIcon,
@@ -96,12 +98,6 @@ export default function LocalInfoPage() {
     );
   };
 
-  const handleLocationSearch = (event) => {
-    event.preventDefault();
-    // No-op: kept to satisfy any potential form submissions (we now use selects)
-    setLocationStatus(`Showing collector information for ${district}${municipality ? ', ' + municipality : ''}.`);
-  };
-
   return (
     <div className="page">
       <div className="page-inner">
@@ -122,6 +118,17 @@ export default function LocalInfoPage() {
             Find collection services, recycling resources, and waste disposal
             rules specific to your district.
           </p>
+
+          <div className="showcase-panel local-image-panel">
+            <div className="showcase-grid">
+              <div className="showcase-card image-gallery-card">
+                <img src={localImage1} alt="Local waste service" className="showcase-card-image" />
+              </div>
+              <div className="showcase-card image-gallery-card">
+                <img src={localImage2} alt="Local recycling example" className="showcase-card-image" />
+              </div>
+            </div>
+          </div>
         </div>
 
         <label

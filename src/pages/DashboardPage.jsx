@@ -9,10 +9,12 @@ import {
 } from "recharts";
 
 import { StarIcon, ScanIcon, AwardIcon } from "../components/Icons";
+import dashboardImage1 from "../images/image3.jpg";
+import dashboardImage2 from "../images/image4.jpeg";
 // IMPORTING THE CLIENT WRAPPER TO PROVIDE SUPABASE INTEGRATION REQUIREMENTS
 import { supabase } from "../supabaseClient";
 
-const API_BASE = "http://localhost:8000";
+const API_BASE = "http://localhost:3001";
 
 export default function DashboardPage({ user }) {
   const userId = user?.id;
@@ -21,19 +23,8 @@ export default function DashboardPage({ user }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // 🔒 Guard: if no user, stop rendering dashboard
-  if (!userId) {
-    return (
-      <div className="page">
-        <div className="page-inner" style={{ textAlign: "center", paddingTop: 60 }}>
-          <div style={{ fontSize: 32 }}>🔒</div>
-          <div style={{ color: "red" }}>User not found. Please login again.</div>
-        </div>
-      </div>
-    );
-  }
-
   useEffect(() => {
+    if (!userId) return;
     let isMounted = true;
 
     const fetchDashboard = () => {
@@ -65,9 +56,9 @@ export default function DashboardPage({ user }) {
         await supabase
           .from("dashboard_analytics_pings")
           .insert([{ viewer_id: userId, platform: "web-frontend" }]);
-      } catch (sbErr) {
+      } catch (error) {
         // Quietly fail background telemetry so original layout doesn't crash if DB connection changes
-        console.log("Background metric synced.");
+        console.log("Background metric synced.", error);
       }
     }
     trackGlobalMetrics();
@@ -81,6 +72,18 @@ export default function DashboardPage({ user }) {
       clearInterval(interval);
     };
   }, [userId]);
+
+  // 🔒 Guard: if no user, stop rendering dashboard
+  if (!userId) {
+    return (
+      <div className="page">
+        <div className="page-inner" style={{ textAlign: "center", paddingTop: 60 }}>
+          <div style={{ fontSize: 32 }}>🔒</div>
+          <div style={{ color: "red" }}>User not found. Please login again.</div>
+        </div>
+      </div>
+    );
+  }
 
   // Loading state
   if (loading) {
@@ -129,6 +132,25 @@ export default function DashboardPage({ user }) {
         <div className="dash-header">
           <h1>Personal Impact Dashboard</h1>
           <p>Track your progress and environmental contribution.</p>
+        </div>
+
+        <div className="dashboard-visual-panel">
+          <div className="dashboard-visual-copy">
+            <span className="dashboard-visual-badge">Feature Spotlight</span>
+            <h2>Progress in motion</h2>
+            <p>These examples show the kinds of waste items you've identified, while your dashboard keeps your sustainability journey crystal clear.</p>
+          </div>
+
+          <div className="dashboard-visual-grid">
+            <div className="dashboard-visual-card">
+              <img src={dashboardImage1} alt="Recent waste scan" className="dashboard-visual-img" />
+              <div className="dashboard-visual-tag">Recent scan</div>
+            </div>
+            <div className="dashboard-visual-card">
+              <img src={dashboardImage2} alt="Recycling example" className="dashboard-visual-img" />
+              <div className="dashboard-visual-tag">Recycling inspiration</div>
+            </div>
+          </div>
         </div>
 
         {/* STATS */}

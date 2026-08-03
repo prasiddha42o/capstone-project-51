@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { supabase } from "../supabaseClient";
+import sampleImage1 from "../images/image1.jpg";
+import sampleImage2 from "../images/image2.png";
 
 
 export default function IdentifyPage() {
@@ -72,6 +73,17 @@ export default function IdentifyPage() {
             <li>Plain background improves accuracy</li>
             <li>Good lighting improves accuracy</li>
           </ul>
+        </div>
+
+        <div className="showcase-panel image-gallery-panel">
+          <div className="showcase-grid">
+            <div className="showcase-card image-gallery-card">
+              <img src={sampleImage1} alt="Plastic waste sample" className="showcase-card-image" />
+            </div>
+            <div className="showcase-card image-gallery-card">
+              <img src={sampleImage2} alt="Paper waste sample" className="showcase-card-image" />
+            </div>
+          </div>
         </div>
 
         {!file && (
