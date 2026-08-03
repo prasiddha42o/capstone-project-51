@@ -1,0 +1,36 @@
+services:
+  backend:
+    build:
+      context: ./backend
+    env_file:
+      - ./backend/.env
+    environment:
+      # Explicit paths (rather than the image's own directory-relative
+      # guess) since the checkpoint is mounted in, not baked into the image.
+      MODEL_PATH: /app/model_and_data_pipeline/model_resnet50/primary_best.pth
+      CONDITION_MODEL_PATH: /app/model_and_data_pipeline/model_condition/primary_best.pth
+      FRONTEND_ORIGIN: http://localhost:5173
+    volumes:
+      # Read-only: the container only needs to load the checkpoint, never
+      # write to it. Only this one model's folder is mounted (not all of
+      # model_and_data_pipeline/, which also holds multi-GB raw datasets).
+      - ./model_and_data_pipeline/model_resnet50:/app/model_and_data_pipeline/model_resnet50:ro
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        # Baked into the static bundle at build time -- must be reachable
+        # from the browser (the published port above), not the Docker
+        # network's internal "backend" hostname.
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://localhost:8000}
+        VITE_SUPABASE_URL: ${VITE_SUPABASE_URL}
+        VITE_SUPABASE_ANON_KEY: ${VITE_SUPABASE_ANON_KEY}
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
+    restart: unless-stopped

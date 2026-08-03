@@ -1,0 +1,12 @@
+node_modules/
+dist/
+.env
+.env.local
+*.db
+*.db-shm
+*.db-wal
+server/
+src/tests/
+.git
+.DS_Store
+README.md
