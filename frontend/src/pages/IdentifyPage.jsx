@@ -1,6 +1,5 @@
 import { useState } from "react";
-
-const API_BASE = "http://localhost:8000";
+import { API_BASE } from "../config";
 
 export default function IdentifyPage({
   user,
@@ -120,6 +119,17 @@ export default function IdentifyPage({
           <div className="result-card" style={{ marginTop: "20px" }}>
             <div className="result-title">{result.emoji} {result.name}</div>
             <p>{result.confidence}% confidence</p>
+            {result.tier_label && (
+              <p style={!result.is_safe ? { color: "#b45309", fontWeight: 600 } : undefined}>
+                {result.tier_label}
+              </p>
+            )}
+            {result.condition && (
+              <p>
+                Condition: {result.condition.condition}
+                {" "}({Math.round(result.condition.confidence * 100)}% confidence)
+              </p>
+            )}
             <p>{result.points} points earned</p>
             <div style={{ marginTop: "12px" }}>
               <h3>Disposal Instructions</h3>

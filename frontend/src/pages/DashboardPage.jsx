@@ -8,11 +8,10 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
-import { StarIcon, ScanIcon, AwardIcon } from "../components/Icons";
+import { StarIcon, ScanIcon, AwardIcon, ChevronDown } from "../components/Icons";
 // IMPORTING THE CLIENT WRAPPER TO PROVIDE SUPABASE INTEGRATION REQUIREMENTS
 import { supabase } from "../supabaseClient";
-
-const API_BASE = "http://localhost:8000";
+import { API_BASE } from "../config";
 
 export default function DashboardPage({ user }) {
   const userId = user?.id;
@@ -20,6 +19,7 @@ export default function DashboardPage({ user }) {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [expandedIndex, setExpandedIndex] = useState(null);
 
   // 🔒 Guard: if no user, stop rendering dashboard
   if (!userId) {
@@ -246,20 +246,64 @@ export default function DashboardPage({ user }) {
             </div>
           ) : (
             <ul className="history-list">
-              {history.map((h, i) => (
-                <li key={i} className="history-item">
-                  <div className="history-icon">{h.emoji}</div>
-                  <div className="history-info">
-                    <div className="history-name">{h.name}</div>
-                    <div className="history-meta">
-                      📅 {h.date} · ⚖️ {h.weight}
-                    </div>
-                  </div>
-                  <div className="history-pts">
-                    <StarIcon /> +{h.points} pts
-                  </div>
-                </li>
-              ))}
+              {history.map((h, i) => {
+                const isOpen = expandedIndex === i;
+                return (
+                  <li key={i} className="history-item-wrap">
+                    <button
+                      type="button"
+                      className="history-item"
+                      onClick={() => setExpandedIndex(isOpen ? null : i)}
+                      aria-expanded={isOpen}
+                    >
+                      <div className="history-icon">{h.emoji}</div>
+                      <div className="history-info">
+                        <div className="history-name">{h.name}</div>
+                        <div className="history-meta">
+                          📅 {h.date} · ⚖️ {h.weight}
+                        </div>
+                      </div>
+                      <div className="history-pts">
+                        <StarIcon /> +{h.points} pts
+                      </div>
+                      <span className={`kb-chevron${isOpen ? " kb-chevron-open" : ""}`}>
+                        <ChevronDown />
+                      </span>
+                    </button>
+
+                    {isOpen && (
+                      <div className="history-detail">
+                        {h.image_url ? (
+                          <img src={h.image_url} alt={h.name} className="history-detail-img" />
+                        ) : (
+                          <div className="history-detail-img history-detail-placeholder">
+                            <span>{h.emoji}</span>
+                            No image saved for this scan
+                          </div>
+                        )}
+                        <div className="history-detail-info">
+                          <div>
+                            <span className="history-detail-label">Confidence</span>
+                            {h.confidence != null ? `${h.confidence}%` : "—"}
+                          </div>
+                          <div>
+                            <span className="history-detail-label">Trust tier</span>
+                            {h.tier ? h.tier[0].toUpperCase() + h.tier.slice(1) : "—"}
+                          </div>
+                          <div>
+                            <span className="history-detail-label">Est. weight</span>
+                            {h.weight}
+                          </div>
+                          <div>
+                            <span className="history-detail-label">Date</span>
+                            {h.date}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </li>
+                );
+              })}
             </ul>
           )}
         </div>

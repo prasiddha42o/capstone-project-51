@@ -6,11 +6,16 @@ Everything the frontend's Identify/Dashboard pages talk to:
   GET  /predictions          — list recent logged predictions
   GET  /predictions/{id}     — a single prediction record
 """
+import io
+import logging
+
 from fastapi import APIRouter, File, HTTPException, Request, UploadFile
 from fastapi.responses import JSONResponse
+from PIL import Image
 
 from app.core.config import MODEL_PATH, VALID_IMAGE_CONTENT
 from app.core.model import DEVICE, predict_image
+from app.core.storage import upload_prediction_image
 from app.data.category_meta import get_category_meta
 from app.db.database import (
     DATABASE_URL,
@@ -23,6 +28,7 @@ from app.db.database import (
 from app.schemas.schemas import PredictionRecord
 
 router = APIRouter(tags=["predictions"])
+logger = logging.getLogger("waste_api")
 
 
 @router.get("/health")
@@ -33,6 +39,7 @@ async def health(request: Request) -> dict[str, str]:
         "model_path": str(MODEL_PATH),
         "database": DATABASE_URL.split("@")[-1],  # shows host/db, hides password
         "db_status": getattr(request.app.state, "db_status", "unknown"),
+        "condition_model_status": getattr(request.app.state, "condition_model_status", "unknown"),
     }
 
 
@@ -83,7 +90,28 @@ async def predict(
         # 2. Get friendly metadata for predicted class
         meta = get_category_meta(prediction_data["predicted_class"])
 
-        # 3. Build full response the frontend expects
+        # 3. Reason about how much to trust this prediction
+        reasoner = state.reasoner
+        tier = reasoner.get_tier(prediction_data["predicted_class"], prediction_data["confidence"])
+        full_result_partial = {**prediction_data, "tier": tier}
+
+        # 4. Condition (clean/contaminated) is optional -- only present if
+        # that checkpoint has been trained and loaded for this environment.
+        condition_result = None
+        if getattr(state, "condition_model_status", "unavailable") == "loaded":
+            try:
+                image = Image.open(io.BytesIO(contents)).convert("RGB")
+                condition_result = state.condition_classifier.predict(image)
+            except Exception as exc:
+                logger.warning("Condition classification failed: %s", exc)
+
+        # 5. Only upload to storage (and later save to history) for logged-in
+        # users -- no point paying storage cost for anonymous scans.
+        image_url = None
+        if user_id:
+            image_url = upload_prediction_image(contents, file.content_type, file.filename)
+
+        # 6. Build full response the frontend expects
         full_result = {
             "name": meta["name"],
             "emoji": meta["emoji"],
@@ -93,9 +121,14 @@ async def predict(
             "steps": meta["steps"],
             "points": meta["points"],
             "top3": prediction_data["top3"],
+            "tier": tier,
+            "tier_label": reasoner.get_prefix(tier),
+            "is_safe": reasoner.is_safe(full_result_partial),
+            "condition": condition_result,
+            "image_url": image_url,
         }
 
-        # 4. Log to Supabase predictions table
+        # 7. Log to Supabase predictions table
         log_prediction(
             get_connection(),
             filename=file.filename,
@@ -108,7 +141,7 @@ async def predict(
             request_size=request_size,
         )
 
-        # 5. If user_id provided, save to results table too
+        # 8. If user_id provided, save to results table too
         if user_id:
             save_result(
                 get_connection(),
@@ -117,6 +150,9 @@ async def predict(
                 name=meta["name"],
                 emoji=meta["emoji"],
                 points=meta["points"],
+                image_url=image_url,
+                confidence=full_result["confidence"],
+                tier=tier,
             )
 
         return JSONResponse(content=full_result)

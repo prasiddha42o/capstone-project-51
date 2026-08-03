@@ -1,4 +1,4 @@
-const API_BASE = "http://localhost:8000";
+import { API_BASE } from "../config";
 
 /**
  * LOGIN USER
@@ -56,8 +56,7 @@ export async function registerUser(name, email, password) {
       };
     }
 
-    localStorage.setItem("wa_user", JSON.stringify(data.user));
-
+    // No session is created on registration — the user must log in separately.
     return {
       success: true,
       user: data.user,

@@ -3,7 +3,7 @@ import { useState } from "react";
 import { validateEmail } from "../utils/validation";
 import { loginUser } from "../utils/auth";
 import {
-  LeafIcon, MailIcon, LockIcon, EyeIcon, GoogleIcon, GithubIcon,
+  LeafIcon, MailIcon, LockIcon, EyeIcon,
 } from "../components/Icons";
 
 export default function LoginPage({ onLogin, onGoRegister }) {
@@ -93,24 +93,12 @@ export default function LoginPage({ onLogin, onGoRegister }) {
 
           <div className="row-between">
             <label className="checkbox-label"><input type="checkbox" /> Remember me</label>
-            <span className="link">Forgot password?</span>
           </div>
 
           <button type="submit" className="btn-primary" disabled={loading}>
             {loading ? "Logging in…" : "Login"}
           </button>
         </form>
-
-        <div className="divider">
-          <div className="divider-line" />
-          <span className="divider-text">Or continue with</span>
-          <div className="divider-line" />
-        </div>
-
-        <div className="social-btns">
-          <button type="button" className="btn-social"><GoogleIcon /> Google</button>
-          <button type="button" className="btn-social"><GithubIcon /> GitHub</button>
-        </div>
 
         <p className="auth-footer">
           Don't have an account?{" "}

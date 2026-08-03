@@ -16,7 +16,7 @@ def get_database_url() -> str:
     """Return the configured database URL, supporting either DATABASE_URL or SUPABASE_URL."""
     url = os.getenv("DATABASE_URL") or os.getenv("SUPABASE_URL")
     if not url:
-        return "postgresql://postgres:password@localhost:5432/greennepal"
+        return "postgresql://postgres:password@localhost:5432/waste_assistant_nepal"
 
     if "sslmode=" not in url and "supabase.co" in url:
         separator = "&" if "?" in url else "?"
@@ -56,6 +56,12 @@ def get_connection() -> psycopg2.pool.ThreadedConnectionPool:
             minconn=1,
             maxconn=10,
             dsn=DATABASE_URL,
+            # Without this, a network that can't reach the DB host makes
+            # every address libpq tries hang for the OS's default TCP
+            # timeout (minutes), blocking the whole app's startup. Fail
+            # fast instead -- the app already degrades gracefully when the
+            # DB is unavailable.
+            connect_timeout=5,
         )
     return _pool
 
@@ -73,6 +79,16 @@ CREATE TABLE IF NOT EXISTS results (
 );
 """
 
+# Added after the original table -- ADD COLUMN IF NOT EXISTS keeps this
+# idempotent for both fresh installs and databases that already have the
+# original (image-less) `results` table.
+ALTER_RESULTS_TABLE_STATEMENTS = [
+    "ALTER TABLE results ADD COLUMN IF NOT EXISTS image_url TEXT",
+    "ALTER TABLE results ADD COLUMN IF NOT EXISTS confidence FLOAT",
+    "ALTER TABLE results ADD COLUMN IF NOT EXISTS tier TEXT",
+]
+
+
 def init_db(pool: psycopg2.pool.ThreadedConnectionPool) -> None:
     """
     Creates the predictions table if it doesn't exist.
@@ -83,6 +99,8 @@ def init_db(pool: psycopg2.pool.ThreadedConnectionPool) -> None:
         with conn.cursor() as cur:
             cur.execute(CREATE_PREDICTIONS_TABLE)
             cur.execute(CREATE_RESULTS_TABLE)
+            for statement in ALTER_RESULTS_TABLE_STATEMENTS:
+                cur.execute(statement)
         conn.commit()
     finally:
         pool.putconn(conn)
@@ -181,6 +199,9 @@ def save_result(
     name: str,
     emoji: str,
     points: int,
+    image_url: str | None = None,
+    confidence: float | None = None,
+    tier: str | None = None,
 ) -> None:
     """
     Saves a scan result linked to a user.
@@ -191,12 +212,12 @@ def save_result(
         with conn.cursor() as cur:
             cur.execute(
                 """
-                INSERT INTO results 
-                    (user_id, type, name, emoji, points)
-                VALUES 
-                    (%s, %s, %s, %s, %s)
+                INSERT INTO results
+                    (user_id, type, name, emoji, points, image_url, confidence, tier)
+                VALUES
+                    (%s, %s, %s, %s, %s, %s, %s, %s)
                 """,
-                (user_id, type, name, emoji, points),
+                (user_id, type, name, emoji, points, image_url, confidence, tier),
             )
         conn.commit()
     finally:
@@ -246,7 +267,8 @@ def fetch_dashboard_stats(pool: psycopg2.pool.ThreadedConnectionPool, user_id: i
 
             cur.execute(
                 """
-                SELECT type, name, emoji, points, created_at
+                SELECT type, name, emoji, points, created_at,
+                       image_url, confidence, tier
                 FROM results
                 WHERE user_id = %s
                 ORDER BY created_at DESC

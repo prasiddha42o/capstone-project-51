@@ -8,7 +8,7 @@ export default function Navbar({ activePage, setPage, onLogout }) {
         Waste Assistant Nepal
       </div>
       <div className="nav-links">
-        {["Identify", "My Dashboard", "Local Info", "About"].map((p) => (
+        {["Identify", "My Dashboard", "Knowledge Base", "Local Info", "About"].map((p) => (
           <button
             key={p}
             className={`nav-link${activePage === p ? " active" : ""}`}
