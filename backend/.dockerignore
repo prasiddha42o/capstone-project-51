@@ -1,0 +1,10 @@
+__pycache__/
+**/__pycache__/
+*.pyc
+.env
+.env.local
+tests/
+models_v2/
+.pytest_cache/
+.DS_Store
+README.md
